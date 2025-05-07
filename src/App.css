@@ -28,11 +28,23 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+
+
+/* Stile chart */
+
+#line-chart {
+  background-color: rgb(255, 246, 193);
+  padding: 0 0;
+}
+
+.line {
+  fill: none;
+  stroke: #00bfa6;
+  stroke-width: 3;
+}
+
+#x-axis .domain, #y-axis .domain  {
+  stroke: #E04836;
+  stroke-width: 3;
+  opacity: 0.6;
 }

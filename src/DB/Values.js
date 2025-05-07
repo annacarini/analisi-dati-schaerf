@@ -1,5 +1,17 @@
 export default class Values {
 
+    // nomi colonne
+    static FIELD_ATENEO = "Ateneo";
+    static FIELD_NOME = "Cognome e Nome";
+    static FIELD_FACOLTA = "Facoltà";
+    static FIELD_FASCIA = "Fascia";
+    static FIELD_GENERE = "Genere";
+    static FIELD_SC = "S.C.";
+    static FIELD_SSD = "S.S.D.";
+    static FIELD_STRUTTURA = "Struttura di afferenza";
+    static FIELD_AREA = "area";
+    static FIELD_YEAR = "year";
+
     static VALUES_ATENEO = [
         '"Ca\' Foscari" VENEZIA',
         '"L\'Orientale" di NAPOLI',
