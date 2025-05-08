@@ -2,6 +2,7 @@ import {React, useEffect, useState, useRef} from 'react';
 
 import * as d3 from "d3";
 
+import DropDownCheckbox from './menu/DropDownCheckbox';
 import Values from "../DB/Values";
 
 import '../App.css';
@@ -47,10 +48,14 @@ export default function MultiAnalysis({dataset}) {
         );
     }
 
+
     function filterRowWithAteneo(row, ateneo) {
         return (
-            (row[Values.FIELD_ATENEO] == ateneo) &&
-            (selectedFacolta == Values.VALUES_FACOLTA || selectedFacolta.includes(row[Values.FIELD_FACOLTA])) &&
+            (row[Values.FIELD_ATENEO].toLowerCase() == ateneo.toLowerCase()) &&
+            (  selectedFacolta == Values.VALUES_FACOLTA ||
+               selectedFacolta.map((str) => str.toLowerCase()).includes(row[Values.FIELD_FACOLTA].toLowerCase()) ||
+               selectedFacolta.map((str) => str.toLowerCase()).includes(row[Values.FIELD_STRUTTURA].toLowerCase())
+            ) &&
             (selectedFascia == Values.VALUES_FASCIA || selectedFascia.includes(row[Values.FIELD_FASCIA])) &&
             (selectedSC == Values.VALUES_SC || selectedSC.includes(row[Values.FIELD_SC])) &&
             (selectedSSD == Values.VALUES_SSD || selectedSSD.includes(row[Values.FIELD_SSD]))
@@ -84,7 +89,7 @@ export default function MultiAnalysis({dataset}) {
 
         var margin = {top: 10, right: 0, bottom: 30, left: 30};
         //var width = 1000 - margin.left - margin.right;
-        var width = window.innerWidth - margin.left - margin.right;
+        var width = 0.8*window.innerWidth - margin.left - margin.right;
         var height = 500 - margin.top - margin.bottom;
 
 
@@ -92,8 +97,8 @@ export default function MultiAnalysis({dataset}) {
         const svg = d3.select(ref.current);
         svg.attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
-            .attr("id", "line-chart")             // assegno un id per i css
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+            .attr("id", "line-chart");             // assegno un id per i css
+            //.attr("transform", `translate(${margin.left},${margin.top})`);
               
 
         //scales
@@ -115,7 +120,7 @@ export default function MultiAnalysis({dataset}) {
         //const yAxis = d3.axisLeft(yScale).ticks(0, maxCount, 10);
         const yAxis = d3.axisLeft(yScale).ticks(10);
         svg.append("g")
-            //.attr("transform", `translate(80,0)`)
+            .attr("transform", `translate(${margin.left},0)`)
             .attr("id", "y-axis")             // assegno un id per i css
             .call(yAxis);
 
@@ -142,8 +147,10 @@ export default function MultiAnalysis({dataset}) {
         <div>
             multi analysis
             {/* Selezione campi */}
-            <div>
-                <input type="text"/>
+            <div className="flex-row">
+                <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} />
+                <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} />
+                <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} />
             </div>
             {/* Grafici */}
             <svg className="chart" ref={ref} />

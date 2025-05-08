@@ -96,7 +96,7 @@ export default function Main() {
 
 
     return (
-        <div>
+        <div id="main">
             Analisi dati
             {/* Barra pulsanti analisi singola/multipla */}
             <div className="flex-row">

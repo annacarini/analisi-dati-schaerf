@@ -1,5 +1,12 @@
+html, body, .App {
+  height: 100%;
+  width: 100%;
+}
+
 .App {
   text-align: center;
+  background-color: rgb(211, 231, 226);
+  position: absolute;
 }
 
 .App-logo {
@@ -26,6 +33,19 @@
 
 .App-link {
   color: #61dafb;
+}
+
+
+
+#main {
+  height: 95%;
+  width: 90%;
+  position: absolute;
+  bottom: 0;
+  left: 5%;
+  background-color: white;
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
 }
 
 
