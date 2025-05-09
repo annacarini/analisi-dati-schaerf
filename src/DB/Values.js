@@ -1,5 +1,10 @@
 export default class Values {
 
+    // anni di cui abbiamo i dati
+    static YEAR_START = 2000;
+    static YEAR_END = 2024;
+
+
     // nomi colonne
     static FIELD_ATENEO = "Ateneo";
     static FIELD_NOME = "Cognome e Nome";
@@ -12,16 +17,15 @@ export default class Values {
     static FIELD_AREA = "area";
     static FIELD_YEAR = "year";
 
+
     static VALUES_ATENEO = [
-        '"Ca\' Foscari" VENEZIA',
-        '"L\'Orientale" di NAPOLI',
-        '"Parthenope" di NAPOLI',
         'BARI',
         'BASILICATA',
         'BERGAMO',
         'BOLOGNA',
         'BRESCIA',
         'Bocconi MILANO',
+        '"Ca\' Foscari" VENEZIA',
         'CAGLIARI',
         'CAMERINO',
         'CAMPANIA - "L. VANVITELLI"',
@@ -31,6 +35,7 @@ export default class Values {
         'CATANZARO',
         'CHIETI-PESCARA',
         'Cattolica del Sacro Cuore',
+        'della CALABRIA',
         'EUROPEA di ROMA',
         'FERRARA',
         'FIRENZE',
@@ -42,6 +47,7 @@ export default class Values {
         'INSUBRIA',
         'IULM - MILANO',
         'L\'AQUILA',
+        '"L\'Orientale" di NAPOLI',
         'LINK CAMPUS',
         'LIUC - CASTELLANZA',
         'LUM "Giuseppe Degennaro"',
@@ -59,6 +65,7 @@ export default class Values {
         'PADOVA',
         'PALERMO',
         'PARMA',
+        '"Parthenope" di NAPOLI',
         'PAVIA',
         'PERUGIA',
         'PIEMONTE ORIENTALE',
@@ -116,8 +123,7 @@ export default class Values {
         'Università degli Studi di Roma UnitelmaSapie',
         'Urbino Carlo Bo',
         'VALLE D\'AOSTA',
-        'VERONA',
-        'della CALABRIA'
+        'VERONA'
     ];
     
     static VALUES_FACOLTA = [
