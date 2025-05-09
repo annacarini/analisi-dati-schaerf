@@ -1,16 +1,40 @@
 {
   "files": {
-    "main.css": "/analisi-dati-schaerf/static/css/main.f855e6bc.css",
-    "main.js": "/analisi-dati-schaerf/static/js/main.7c29a99f.js",
+    "main.css": "/analisi-dati-schaerf/static/css/main.4e7e544d.css",
+    "main.js": "/analisi-dati-schaerf/static/js/main.0f948498.js",
     "static/js/453.96030e14.chunk.js": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js",
-    "static/media/logo.svg": "/analisi-dati-schaerf/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "static/media/completo_2008.csv": "/analisi-dati-schaerf/static/media/completo_2008.71a1b16cd8fa0bdabb24.csv",
+    "static/media/completo_2007.csv": "/analisi-dati-schaerf/static/media/completo_2007.9b9eac4306b5dc45e585.csv",
+    "static/media/completo_2006.csv": "/analisi-dati-schaerf/static/media/completo_2006.0b64ff552096a1825b58.csv",
+    "static/media/completo_2023.csv": "/analisi-dati-schaerf/static/media/completo_2023.0fd69c1c4d0154feb70e.csv",
+    "static/media/completo_2005.csv": "/analisi-dati-schaerf/static/media/completo_2005.232d99de3c0de48cacf7.csv",
+    "static/media/completo_2011.csv": "/analisi-dati-schaerf/static/media/completo_2011.05dd3233460e5d550503.csv",
+    "static/media/completo_2009.csv": "/analisi-dati-schaerf/static/media/completo_2009.4766690777101806a8fe.csv",
+    "static/media/completo_2022.csv": "/analisi-dati-schaerf/static/media/completo_2022.9eb7f19caf5c5a79444d.csv",
+    "static/media/completo_2002.csv": "/analisi-dati-schaerf/static/media/completo_2002.f2ab694f4a95a88321ee.csv",
+    "static/media/completo_2004.csv": "/analisi-dati-schaerf/static/media/completo_2004.8bf1c9c90db14e5f3b11.csv",
+    "static/media/completo_2003.csv": "/analisi-dati-schaerf/static/media/completo_2003.93c4a5f1a3434874c977.csv",
+    "static/media/completo_2021.csv": "/analisi-dati-schaerf/static/media/completo_2021.efa365269635cc5f6ebc.csv",
+    "static/media/completo_2012.csv": "/analisi-dati-schaerf/static/media/completo_2012.39dbb3d7e8f5e5c4d327.csv",
+    "static/media/completo_2001.csv": "/analisi-dati-schaerf/static/media/completo_2001.7d071c88a9fa7d70bccf.csv",
+    "static/media/completo_2020.csv": "/analisi-dati-schaerf/static/media/completo_2020.2060b066978b233027d3.csv",
+    "static/media/completo_2010.csv": "/analisi-dati-schaerf/static/media/completo_2010.854148f227dbb54353cc.csv",
+    "static/media/completo_2019.csv": "/analisi-dati-schaerf/static/media/completo_2019.03d536aab0a0ce6bb8c8.csv",
+    "static/media/completo_2013.csv": "/analisi-dati-schaerf/static/media/completo_2013.d59f5b6e77befd772198.csv",
+    "static/media/completo_2014.csv": "/analisi-dati-schaerf/static/media/completo_2014.607b790d818047520c9c.csv",
+    "static/media/completo_2018.csv": "/analisi-dati-schaerf/static/media/completo_2018.0619283f55021bb43e12.csv",
+    "static/media/completo_2016.csv": "/analisi-dati-schaerf/static/media/completo_2016.ea90bae6748ea960794d.csv",
+    "static/media/completo_2015.csv": "/analisi-dati-schaerf/static/media/completo_2015.c4ecf36fee5141b808b2.csv",
+    "static/media/completo_2017.csv": "/analisi-dati-schaerf/static/media/completo_2017.90e087449a75f9f348d3.csv",
+    "static/media/completo_2000.csv": "/analisi-dati-schaerf/static/media/completo_2000.e5a81075cbf81c73a417.csv",
+    "static/media/completo_2024.csv": "/analisi-dati-schaerf/static/media/completo_2024.958f70e54acb3f3a5892.csv",
     "index.html": "/analisi-dati-schaerf/index.html",
-    "main.f855e6bc.css.map": "/analisi-dati-schaerf/static/css/main.f855e6bc.css.map",
-    "main.7c29a99f.js.map": "/analisi-dati-schaerf/static/js/main.7c29a99f.js.map",
+    "main.4e7e544d.css.map": "/analisi-dati-schaerf/static/css/main.4e7e544d.css.map",
+    "main.0f948498.js.map": "/analisi-dati-schaerf/static/js/main.0f948498.js.map",
     "453.96030e14.chunk.js.map": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f855e6bc.css",
-    "static/js/main.7c29a99f.js"
+    "static/css/main.4e7e544d.css",
+    "static/js/main.0f948498.js"
   ]
 }
