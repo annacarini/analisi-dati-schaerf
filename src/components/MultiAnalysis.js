@@ -12,6 +12,8 @@ export default function MultiAnalysis({dataset}) {
 
     const ref = useRef();
 
+    const margin = {top: 10, right: 0, bottom: 30, left: 40};
+
     // Range di anni
     const [annoStart, setAnnoStart] = useState(Values.YEAR_START);
     const [annoEnd, setAnnoEnd] = useState(Values.YEAR_END);
@@ -19,17 +21,14 @@ export default function MultiAnalysis({dataset}) {
     // Opzioni selezionate
     const [selectedAteneo, setSelectedAteneo] = useState(['ROMA "La Sapienza"','BOLOGNA', 'ROMA "Tor Vergata"']);
     //var selectedFacolta = ['Farmacia e Medicina', 'Ingegneria'];
-    var selectedFacolta = Values.VALUES_FACOLTA;
-    var selectedSC = Values.VALUES_SC;
-    var selectedSSD = Values.VALUES_SSD;
-    var selectedFascia = ['Ordinario'];
+    const [selectedFacolta, setSelectedFacolta] = useState(Values.VALUES_FACOLTA);
+    const [selectedSC, setSelectedSC] = useState(Values.VALUES_SC);
+    const [selectedSSD, setSelectedSSD] = useState(Values.VALUES_SSD);
+    const [selectedFascia, setSelectedFascia] = useState(['Ordinario']);
     
 
-    // CHART
-    const [xScale, setXScale] = useState(null);
-    const [yScale, setYScale] = useState(null);
-    const [xAxis, setXAxis] = useState(null);
-    const [yAxis, setYAxis] = useState(null);
+    //const [xAxis, setXAxis] = useState(null);
+    //const [yAxis, setYAxis] = useState(null);
 
 
     useEffect(() => {
@@ -45,6 +44,8 @@ export default function MultiAnalysis({dataset}) {
         // Aggiorna grafico
         //updateChartData(computeData());
     }
+
+
 
     function getAnnoDatasetIndex(anno) {
         return anno-Values.YEAR_START;
@@ -86,21 +87,35 @@ export default function MultiAnalysis({dataset}) {
         const maxCount = vals.max;
         const data = vals.data;
 
+        // Calcola dimensioni
+        var width = 0.8*window.innerWidth - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
         // Prendi elemento svg
         const svg = d3.select(ref.current);
 
-        // Create the X axis:
+
+        //scales
+        const xScale = d3.scaleLinear().range([margin.left, width - margin.right]);
+        const yScale = d3.scaleLinear().range([height-margin.top, margin.bottom]);
+
+        // axes
+        const xAxis = d3.axisBottom(xScale).ticks(data.length);
+        const yAxis = d3.axisLeft(yScale).ticks(10);
+
+        // Update the X axis:
         xScale.domain([annoStart, annoEnd]);
         svg.selectAll("#x-axis").transition()
             .duration(3000)
             .call(xAxis);
 
-        // create the Y axis
+        // Update the Y axis
         yScale.domain([0, 1.1*maxCount]);
         svg.selectAll("#y-axis")
             .transition()
             .duration(3000)
             .call(yAxis);
+
 
 
         //line generator
@@ -163,8 +178,6 @@ export default function MultiAnalysis({dataset}) {
         const maxCount = vals.max;
         const countPerAnno = vals.data;
 
-
-        var margin = {top: 10, right: 0, bottom: 30, left: 40};
         var width = 0.8*window.innerWidth - margin.left - margin.right;
         var height = 500 - margin.top - margin.bottom;
 
@@ -177,16 +190,14 @@ export default function MultiAnalysis({dataset}) {
             //.attr("transform", `translate(${margin.left},${margin.top})`);
         
 
-
+        
         //scales
-        const xScaleTemp = d3.scaleLinear().range([margin.left, width - margin.right]);
-        setXScale(xScaleTemp);
-        const yScaleTemp = d3.scaleLinear().range([height-margin.top, margin.bottom]);
-        setYScale(yScaleTemp);
+        const xScale = d3.scaleLinear().range([margin.left, width - margin.right]);
+        const yScale = d3.scaleLinear().range([height-margin.top, margin.bottom]);
     
         //axes
-        const xAxisTemp = d3.axisBottom(xScaleTemp).ticks(countPerAnno.length);
-        setXAxis(xAxisTemp);
+        const xAxisTemp = d3.axisBottom(xScale).ticks(countPerAnno.length);
+        //setXAxis(xAxisTemp);
         svg.append("g")
             .attr("transform", `translate(0,${height})`)
             .attr("id", "x-axis")             // assegno un id per i css
@@ -194,18 +205,18 @@ export default function MultiAnalysis({dataset}) {
 
 
         //const yAxis = d3.axisLeft(yScale).ticks(0, maxCount, 10);
-        const yAxisTemp = d3.axisLeft(yScaleTemp).ticks(10);
-        setYAxis(yAxisTemp);
+        const yAxisTemp = d3.axisLeft(yScale).ticks(10);
+        //setYAxis(yAxisTemp);
         svg.append("g")
             .attr("transform", `translate(${margin.left},0)`)
             .attr("id", "y-axis")             // assegno un id per i css
             .call(yAxisTemp);
-
+        
 
         updateChartData(vals);
     }
 
-
+    /*
     function LineChart2() {
 
         // Per tenere traccia del valore Y massimo
@@ -282,20 +293,20 @@ export default function MultiAnalysis({dataset}) {
           .attr("class", "line")
           .attr("d", myLine);
     }
-
+    */
  
 
 
     return (
         <div>
-            multi analysis
             {/* Selezione campi */}
             <div className="flex-row">
                 <DualRangeSlider rangeStart={Values.YEAR_START} rangeEnd={Values.YEAR_END} updateYears={updateYears}/>
-                <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} />
-                <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} />
-                <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} />
-                <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} />
+                <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} updateSelection={setSelectedAteneo}/>
+                <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} updateSelection={setSelectedFacolta}/>
+                <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} updateSelection={setSelectedSC}/>
+                <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} updateSelection={setSelectedSSD}/>
+                <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} updateSelection={setSelectedFascia}/>
                 <button onClick={() => {updateChartData(computeData());}}>update chart</button>
             </div>
             {/* Grafici */}

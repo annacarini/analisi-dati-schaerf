@@ -85,7 +85,7 @@ export default function DualRangeSlider({rangeStart, rangeEnd, updateYears}) {
                     <input className="form_control_container__time__input" type="number" id="toInput" onInput={() => {handleToChange('#toInput')}} value={to} min={rangeStart} max={rangeEnd}/>
                 </div>
             </div>
-            <button onClick={() => {console.log("from " + from + " to " + to);}}>print</button>
+            {/*<button onClick={() => {console.log("from " + from + " to " + to);}}>print</button>*/}
         </div>
     );
 }

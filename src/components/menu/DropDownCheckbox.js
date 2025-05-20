@@ -4,7 +4,7 @@ import Checkbox from './Checkbox';
 
 import './Menu.css';
 
-export default function DropDownCheckbox({title,options}) {
+export default function DropDownCheckbox({title, options, updateSelection}) {
 
     
     const [visible, setVisible] = useState(false);
@@ -27,17 +27,22 @@ export default function DropDownCheckbox({title,options}) {
         //console.log(selectedOptions);
         const index = selectedOptions.indexOf(option);
         //console.log(index);
+
+        var newSelectedOptions = [];
+
         // se c'e'
         if (index > -1) {
             console.log("removing option " + option);
-            setSelectedOptions([...selectedOptions.slice(0, index), ...selectedOptions.slice(index + 1)]);
+            newSelectedOptions = [...selectedOptions.slice(0, index), ...selectedOptions.slice(index + 1)];
         }
         // se non c'e'
         else {
             console.log("adding option " + option);
-            setSelectedOptions([...selectedOptions, option]);
+            newSelectedOptions = [...selectedOptions, option];
         }
-        //console.log(selectedOptions);
+        //console.log(newSelectedOptions);
+        setSelectedOptions(newSelectedOptions);
+        updateSelection(newSelectedOptions);
     }
 
     return (
