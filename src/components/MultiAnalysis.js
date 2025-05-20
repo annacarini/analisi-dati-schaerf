@@ -7,6 +7,11 @@ import DropDownCheckbox from './menu/DropDownCheckbox';
 import Values from "../DB/Values";
 
 import LineChart from './charts/LineChart';
+import MultiLineChart from './charts/MultiLineChart';
+
+import ChartDataAtenei from '../models/ChartDataAtenei';
+import ChartDataSingleAteneo from '../models/ChartDataSingleAteneo';
+import ChartDataEntry from '../models/ChartDataEntry';
 
 import '../App.css';
 
@@ -39,20 +44,33 @@ export default function MultiAnalysis({dataset}) {
         initializeLineChart();
     },[]);
 
+    
+    function initializeLineChart() {
+        const svg = d3.select(ref.current);
+        var width = 0.8*window.innerWidth - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
+        // Crea chart
+        const lchart = new MultiLineChart(svg, margin, width, height);
+        setLineChart(lchart);
+
+        const vals = computeData();
+
+        lchart.draw(vals, annoStart, annoEnd);
+    }
+
 
     function updateLineChart() {
         console.log("updating chart");
-        lineChart.update(computeData(), annoStart, annoEnd);
+        const vals = computeData();
+        lineChart.update(vals, annoStart, annoEnd);
     }
+
 
 
     function updateYears(annoS, annoE) {
         setAnnoStart(annoS);
         setAnnoEnd(annoE);
-        console.log(annoS);
-        
-        // Aggiorna grafico
-        //updateChartData(computeData());
     }
 
 
@@ -61,11 +79,6 @@ export default function MultiAnalysis({dataset}) {
         return anno-Values.YEAR_START;
     }
 
-    function countAmount() {
-        // vedi quanti professori ci sono nel 2000 per gli atenei della lista
-        let count = dataset[0].filter(row => filterRow(row)).length;
-        console.log("conta dentro multianalysis: " + count)
-    }
 
     function filterRow(row) {
         return (
@@ -89,17 +102,30 @@ export default function MultiAnalysis({dataset}) {
             (selectedSSD == Values.VALUES_SSD || selectedSSD.includes(row[Values.FIELD_SSD]))
         );
     }
-    
 
     function computeData() {
+        //var ateneo = selectedAteneo[0];
+        var data = [];
+        var currentMax = 0;
 
-        console.log("computing data");
+        selectedAteneo.map( ateneo => {
+            const ateneoData = computeDataAteneo(ateneo);
+            data.push(ateneoData);
+            if (ateneoData.max > currentMax) {
+                currentMax = ateneoData.max;
+            }
+        });
+
+        return new ChartDataAtenei(currentMax, data);
+    }
+    
+
+    function computeDataAteneo(ateneo) {
 
         // Per tenere traccia del valore Y massimo
         var maxCount = 0;
 
-        // Conta per il primo ateneo quanti professori ci sono per ogni anno
-        var ateneo = selectedAteneo[0];
+        // Conta per l'ateneo quanti professori ci sono per ogni anno
         var countPerAnno = [];
         for (let anno = annoStart; anno <= annoEnd; anno++) {
             const data = dataset[getAnnoDatasetIndex(anno)];
@@ -107,33 +133,14 @@ export default function MultiAnalysis({dataset}) {
             if (count > maxCount) {
                 maxCount = count;
             }
-            countPerAnno.push({
-                    'anno': anno,
-                    'conta': count
-                }
-            );
+            countPerAnno.push(new ChartDataEntry(anno, count));
         }
         console.log("ateneo: " + ateneo + ", conta per anno:");
         console.log(countPerAnno);
 
-        return {"data": countPerAnno, "max": maxCount};
+        return new ChartDataSingleAteneo(ateneo, countPerAnno, maxCount);
     }
 
-
-
-    function initializeLineChart() {
-        const svg = d3.select(ref.current);
-        var width = 0.8*window.innerWidth - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
-
-        // Crea chart
-        const lchart = new LineChart(svg, margin, width, height);
-        setLineChart(lchart);
-
-        const vals = computeData();
-
-        lchart.draw(vals, annoStart, annoEnd);
-    }
 
 
     return (

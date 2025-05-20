@@ -1,18 +1,19 @@
 import * as d3 from "d3";
 
+import ColorUtilities from "../../utils/ColorUtilities";
+
 import "./Charts.css";
 
-export default class LineChart {
+export default class MultiLineChart {
 
     animationDuration = 2000;
 
 
-    constructor(svg, margin, width, height, color="steelblue") {
+    constructor(svg, margin, width, height) {
         this.svg = svg;
         this.margin = margin;
         this.width = width;
         this.height = height;
-        this.color = color;
 
         d3.selectAll(".tooltip").remove();
         const toolTipDiv = d3.select('body').append('div')
@@ -20,6 +21,12 @@ export default class LineChart {
             .attr('class', 'tooltip')               
             .style('opacity', 0)
             .style('position', "absolute");
+
+        toolTipDiv.append("div")
+            .attr("id", "toolTipDiv-title");
+        
+        toolTipDiv.append("div")
+            .attr("id", "toolTipDiv-content");
 
         const closeTooltipFunc = this.closeTooltip;
         svg.on('mouseover', function(event, d) { closeTooltipFunc(toolTipDiv); })
@@ -29,7 +36,32 @@ export default class LineChart {
 
 
     draw(vals, xStart, xEnd) {
-        const countPerAnno = vals.data;
+
+        /*
+        // vals e' cosi':
+        vals = {
+            max: max, 
+            data: [
+             {
+                ateneo: ateneo,
+                data: [
+                  {
+                    anno: anno,
+                    conta: conta
+                  }, ...
+                ],
+                max: max
+             }, ...
+            ]
+        }
+
+        quindi se prendo vals.data[0].data ho countPerAnno, se prendo vals.data[0].max ho maxCount
+
+        */
+
+
+        const countPerAteneo = vals.data;
+        const countPerAnno = vals.data[0].data;
 
         // Prendi elemento svg
         this.svg.attr("width",this. width + this.margin.left + this.margin.right)
@@ -43,12 +75,14 @@ export default class LineChart {
         const yScale = d3.scaleLinear().range([this.height - this.margin.top, this.margin.bottom]);
     
         //axes
+        d3.select("#x-axis").remove();
         const xAxis = d3.axisBottom(xScale).ticks(countPerAnno.length);
         this.svg.append("g")
             .attr("transform", `translate(0,${this.height})`)
             .attr("id", "x-axis")             // assegno un id per i css
             .call(xAxis);
 
+        d3.select("#y-axis").remove();
         const yAxis = d3.axisLeft(yScale).ticks(10);
         this.svg.append("g")
             .attr("transform", `translate(${this.margin.left},0)`)
@@ -61,24 +95,6 @@ export default class LineChart {
         this.update(vals, xStart, xEnd, false);
     }
 
-    /*
-    createsGrid(data) {
-       var grid = gridLine.selectAll("line.horizontalGrid").data(scaleY.ticks());
-
-       grid.enter()
-       .append("line")
-       .attr("class","horizontalGrid");
-
-       grid.exit().remove();
-
-       grid.attr({
-               "x1":0,
-               "x2": width,
-               "y1": function (d) { return scaleY(d); },
-               "y2": function (d) { return scaleY(d); }
-                });
-    }
-    */
 
     
     update(vals, xStart, xEnd, withAnimation=true) {
@@ -92,7 +108,7 @@ export default class LineChart {
 
         // axes
         const xAxis = d3.axisBottom(xScale)
-            .ticks(data.length)
+            .ticks(data[0].data.length)
             .tickFormat(function (d) {
                 return d;
             });
@@ -125,48 +141,33 @@ export default class LineChart {
         }
 
 
-
-        /*
-        var grid = this.svg.selectAll("line.horizontalGrid")
-            .data(yScale.ticks())
-            .enter()
-            .append("line")
-            .attr("class","horizontalGrid")
-            .attr({
-                "x1":0,
-                "x2": this.width,
-                "y1": function (d) { return yScale(d); },
-                "y2": function (d) { return yScale(d); }
-                    });
-
         
-        grid.exit().remove();
-
-        grid.attr({
-                "x1":0,
-                "x2": this.width,
-                "y1": function (d) { return yScale(d); },
-                "y2": function (d) { return yScale(d); }
-                    });
-        */
-
-
-
-
         //line generator
         const myLine = d3.line()
             .x((d, i) => xScale(d.anno))
             .y((d) => yScale(d.conta));
-            //.curve(d3.curveCardinal);
+        
+
+
+        for (let i = 0; i < data.length; i++) {
+            this.drawLine(data[i].ateneo, i, data[i].data, myLine, xScale, yScale, withAnimation, ColorUtilities.randomColor());
+        }
+    }
+
+
+
+    drawLine(ateneo, index, data, lineGenerator, xScale, yScale, withAnimation, color="steelblue") {
+
+        console.log("drawing line for ateneo " + ateneo);
 
 
         // Create a update selection: bind to the new data
-        var u = this.svg.selectAll(".lineTest").data([data], function(d){ return d.anno });
+        var u = this.svg.selectAll(".lineTest-" + index).data([data], function(d){ return d.anno });
 
         // rimuovi i cerchi precedenti (senza "data" non funziona)
-        this.svg.selectAll(".myCircles").data(data).exit().remove();
+        this.svg.selectAll(".myCircles-" + index).data(data).exit().remove();
 
-        var c = this.svg.selectAll(".myCircles");
+        var c = this.svg.selectAll(".myCircles-" + index);
 
 
         var toolTipDiv = d3.select('#toolTipDiv');
@@ -176,22 +177,22 @@ export default class LineChart {
             u
                 .enter()                // dynamically creates placeholder references corresponding to the number of data values
                 .append("path")         // The output of enter() can be fed to append() method and append() will create DOM elements for which there are no corresponding DOM elements on the page
-                    .attr("class","lineTest")
+                    .attr("class","lineTest lineTest-" + index)
                     .merge(u)
                     .transition()
                     .duration(this.animationDuration)
-                    .attr("d", myLine)
+                    .attr("d", lineGenerator)
                     .attr("fill", "none")
-                    .attr("stroke", this.color)
+                    .attr("stroke", color)
                     .attr("stroke-width", 2.5);
 
 
             c   .data(data)
                 .enter()
                 .append("circle")
-                    .attr("class","myCircles")
+                    .attr("class","myCircles myCircles-" + index)
                     .merge(c)
-                    .attr("fill", this.color)
+                    .attr("fill", color)
                     .style("stroke","transparent")
                     .style("stroke-width","10px")
                     .transition()
@@ -205,27 +206,26 @@ export default class LineChart {
             u
                 .enter()
                 .append("path")
-                    .attr("class","lineTest")
+                    .attr("class","lineTest lineTest-" + index)
                     .merge(u)
-                    .attr("d", myLine)
+                    .attr("d", lineGenerator)
                     .attr("fill", "none")
-                    .attr("stroke", this.color)
+                    .attr("stroke", color)
                     .attr("stroke-width", 2.5);
 
             c   .data(data)
                 .enter()
                 .append("circle")
-                    .attr("class","myCircles")
+                    .attr("class","myCircles myCircles-" + index)
                     .merge(c)
-                    .attr("fill", this.color)
+                    .attr("fill", color)
                     .style("stroke","transparent")
                     .style("stroke-width","10px")
                     .attr("cx", function(d) { return xScale(d.anno) })
                     .attr("cy", function(d) { return yScale(d.conta) })
                     .attr("r", 3);
         }
-
-
+    
         // me li devo salvare qua perche' sotto perde il riferimento a "this"
         const closeTooltipFunc = this.closeTooltip;
         const openTooltipFunc = this.openTooltip;
@@ -235,18 +235,21 @@ export default class LineChart {
             .attr("z-index", "3")
             //.on("mouseleave", function(event, d) { closeTooltipFunc(toolTipDiv); })
             .on("mouseout", function(event, d) { closeTooltipFunc(toolTipDiv); })
-            .on('mouseover', function(event, d) { openTooltipFunc(toolTipDiv, event, d); })
+            .on('mouseover', function(event, d) { openTooltipFunc(toolTipDiv, ateneo, event, d); })
             //.on('mouseenter', function(event, d) { openTooltipFunc(toolTipDiv, event, d); });
-
     }
 
 
     
-    openTooltip(tooltip, event, d) {
+    openTooltip(tooltip, ateneo, event, d) {
         //console.log(d); 
-        tooltip.html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>')  
+        tooltip
             .style('left', (event.pageX) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
+
+        d3.select("#toolTipDiv-title").html(ateneo);
+        d3.select("#toolTipDiv-content").html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>')  
+
         tooltip.transition()        
             .duration(200)      
             .style('opacity', 1);     
