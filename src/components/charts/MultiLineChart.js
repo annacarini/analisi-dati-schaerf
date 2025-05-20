@@ -167,7 +167,7 @@ export default class MultiLineChart {
         // rimuovi i cerchi precedenti (senza "data" non funziona)
         this.svg.selectAll(".myCircles-" + index).data(data).exit().remove();
 
-        var c = this.svg.selectAll(".myCircles-" + index);
+        var c = this.svg.selectAll(".myCircles-" + index).append("g");  // append g non funziona, da rivedere
 
 
         var toolTipDiv = d3.select('#toolTipDiv');
