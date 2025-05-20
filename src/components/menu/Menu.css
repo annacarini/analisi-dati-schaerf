@@ -1,3 +1,20 @@
+  
+.page-container {
+  width: 90%;
+  margin: 0 auto;
+}
+
+#menu-row {
+    display: flex;
+    flex-direction: row;
+    height: 15vh;
+    align-items: center;
+    justify-content: space-between;
+}
+
+  
+  
+  
   /* Dropdown checkbox */
 
 
@@ -71,8 +88,9 @@
   /* Dual range slider */
 
   .range_container {
-    display: flex;
-    flex-direction: column;
+    /*display: flex;
+    flex-direction: column;*/
+    display: inline-block;
     width: 15vw;
   }
   
@@ -85,7 +103,7 @@
     position: relative;
     display: flex;
     justify-content: space-between;
-    font-size: 24px;
+    /*font-size: 24px;*/
     color: #635a5a;
   }
   
@@ -103,8 +121,8 @@
   input[type=range]::-moz-range-thumb {
     -webkit-appearance: none;
     pointer-events: all;
-    width: 24px;
-    height: 24px;
+    width: 15px;
+    height: 15px;
     background-color: #fff;
     border-radius: 50%;
     box-shadow: 0 0 0 1px #C6C6C6;

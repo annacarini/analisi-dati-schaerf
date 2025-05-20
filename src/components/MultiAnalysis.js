@@ -6,6 +6,8 @@ import DualRangeSlider from './menu/DualRangeSlider';
 import DropDownCheckbox from './menu/DropDownCheckbox';
 import Values from "../DB/Values";
 
+import LineChart from './charts/LineChart';
+
 import '../App.css';
 
 export default function MultiAnalysis({dataset}) {
@@ -15,7 +17,7 @@ export default function MultiAnalysis({dataset}) {
     const margin = {top: 10, right: 0, bottom: 30, left: 40};
 
     // Range di anni
-    const [annoStart, setAnnoStart] = useState(Values.YEAR_START);
+    const [annoStart, setAnnoStart] = useState("2006");
     const [annoEnd, setAnnoEnd] = useState(Values.YEAR_END);
 
     // Opzioni selezionate
@@ -27,13 +29,20 @@ export default function MultiAnalysis({dataset}) {
     const [selectedFascia, setSelectedFascia] = useState(['Ordinario']);
     
 
+    const [lineChart, setLineChart] = useState(null);
+
     //const [xAxis, setXAxis] = useState(null);
     //const [yAxis, setYAxis] = useState(null);
 
 
     useEffect(() => {
-        LineChart();
+        initializeLineChart();
     },[]);
+
+
+    function updateLineChart() {
+        lineChart.update(computeData(), annoStart, annoEnd);
+    }
 
 
     function updateYears(annoS, annoE) {
@@ -82,68 +91,6 @@ export default function MultiAnalysis({dataset}) {
     }
     
 
-    function updateChartData(vals) {
-
-        const maxCount = vals.max;
-        const data = vals.data;
-
-        // Calcola dimensioni
-        var width = 0.8*window.innerWidth - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
-
-        // Prendi elemento svg
-        const svg = d3.select(ref.current);
-
-
-        //scales
-        const xScale = d3.scaleLinear().range([margin.left, width - margin.right]);
-        const yScale = d3.scaleLinear().range([height-margin.top, margin.bottom]);
-
-        // axes
-        const xAxis = d3.axisBottom(xScale).ticks(data.length);
-        const yAxis = d3.axisLeft(yScale).ticks(10);
-
-        // Update the X axis:
-        xScale.domain([annoStart, annoEnd]);
-        svg.selectAll("#x-axis").transition()
-            .duration(3000)
-            .call(xAxis);
-
-        // Update the Y axis
-        yScale.domain([0, 1.1*maxCount]);
-        svg.selectAll("#y-axis")
-            .transition()
-            .duration(3000)
-            .call(yAxis);
-
-
-
-        //line generator
-        const myLine = d3.line()
-          .x((d, i) => xScale(d.anno))
-          .y((d) => yScale(d.conta));
-          //.curve(d3.curveCardinal);
-
-        // Create a update selection: bind to the new data
-        var u = svg.selectAll(".lineTest")
-            .data([data], function(d){ return d.anno });
-
-        // Updata the line
-        u
-            .enter()
-            .append("path")
-            .attr("class","lineTest")
-            .merge(u)
-            .transition()
-            .duration(3000)
-            .attr("d", myLine)
-            .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 2.5)
-
-    }
-
-
     function computeData() {
         // Per tenere traccia del valore Y massimo
         var maxCount = 0;
@@ -170,144 +117,33 @@ export default function MultiAnalysis({dataset}) {
     }
 
 
-    function LineChart() {
+
+    function initializeLineChart() {
+        const svg = d3.select(ref.current);
+        var width = 0.8*window.innerWidth - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
+        // Crea chart
+        const lchart = new LineChart(svg, margin, width, height);
+        setLineChart(lchart);
 
         const vals = computeData();
 
-
-        const maxCount = vals.max;
-        const countPerAnno = vals.data;
-
-        var width = 0.8*window.innerWidth - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
-
-
-        // Prendi elemento svg
-        const svg = d3.select(ref.current);
-        svg.attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .attr("id", "line-chart");             // assegno un id per i css
-            //.attr("transform", `translate(${margin.left},${margin.top})`);
-        
-
-        
-        //scales
-        const xScale = d3.scaleLinear().range([margin.left, width - margin.right]);
-        const yScale = d3.scaleLinear().range([height-margin.top, margin.bottom]);
-    
-        //axes
-        const xAxisTemp = d3.axisBottom(xScale).ticks(countPerAnno.length);
-        //setXAxis(xAxisTemp);
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .attr("id", "x-axis")             // assegno un id per i css
-            .call(xAxisTemp);
-
-
-        //const yAxis = d3.axisLeft(yScale).ticks(0, maxCount, 10);
-        const yAxisTemp = d3.axisLeft(yScale).ticks(10);
-        //setYAxis(yAxisTemp);
-        svg.append("g")
-            .attr("transform", `translate(${margin.left},0)`)
-            .attr("id", "y-axis")             // assegno un id per i css
-            .call(yAxisTemp);
-        
-
-        updateChartData(vals);
+        lchart.draw(vals, annoStart, annoEnd);
     }
-
-    /*
-    function LineChart2() {
-
-        // Per tenere traccia del valore Y massimo
-        var maxCount = 0;
-
-        // Conta per il primo ateneo quanti professori ci sono per ogni anno
-        var ateneo = selectedAteneo[0];
-        var countPerAnno = [];
-        for (let anno = annoStart; anno <= annoEnd; anno++) {
-            const data = dataset[getAnnoDatasetIndex(anno)];
-            const count = data.filter(row => filterRowWithAteneo(row, ateneo)).length;
-            if (count > maxCount) {
-                maxCount = count;
-            }
-            countPerAnno.push({
-                    'anno': anno,
-                    'conta': count
-                }
-            );
-        }
-        console.log("ateneo: " + ateneo + ", conta per anno:");
-        console.log(countPerAnno);
-
-
-        var margin = {top: 10, right: 0, bottom: 30, left: 40};
-        //var width = 1000 - margin.left - margin.right;
-        var width = 0.8*window.innerWidth - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
-
-
-        // Prendi elemento svg
-        const svg = d3.select(ref.current);
-        svg.attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .attr("id", "line-chart");             // assegno un id per i css
-            //.attr("transform", `translate(${margin.left},${margin.top})`);
-              
-
-        //scales
-        const xScale = d3.scaleLinear()
-            .domain([annoStart, annoEnd])
-            .range([margin.left, width - margin.right]);
-    
-        const yScale = d3.scaleLinear().domain([0, 1.1*maxCount]).range([height-margin.top, margin.bottom]);
-    
-        //axes
-        setXAxis(d3.axisBottom(xScale).ticks(countPerAnno.length)); //.tickSize(-height);
-        //svg.select(".x-axis").style("transform", `translateY(${height} px)`).call(xAxis);
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .attr("id", "x-axis")             // assegno un id per i css
-            .call(xAxis);
-
-
-        //const yAxis = d3.axisLeft(yScale).ticks(0, maxCount, 10);
-        setYAxis(d3.axisLeft(yScale).ticks(10));
-        svg.append("g")
-            .attr("transform", `translate(${margin.left},0)`)
-            .attr("id", "y-axis")             // assegno un id per i css
-            .call(yAxis);
-
-
-        //line generator
-        const myLine = d3.line()
-          .x((d, i) => xScale(d.anno))
-          .y((d) => yScale(d.conta));
-          //.curve(d3.curveCardinal);
-        
-        //drawing the line
-        svg
-          .selectAll(".line")
-          .data([countPerAnno])
-          .join("path")
-          .attr("class", "line")
-          .attr("d", myLine);
-    }
-    */
- 
 
 
     return (
-        <div>
+        <div className='page-container'>
             {/* Selezione campi */}
-            <div className="flex-row">
-                <DualRangeSlider rangeStart={Values.YEAR_START} rangeEnd={Values.YEAR_END} updateYears={updateYears}/>
-                <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} updateSelection={setSelectedAteneo}/>
-                <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} updateSelection={setSelectedFacolta}/>
-                <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} updateSelection={setSelectedSC}/>
-                <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} updateSelection={setSelectedSSD}/>
-                <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} updateSelection={setSelectedFascia}/>
-                <button onClick={() => {updateChartData(computeData());}}>update chart</button>
+            <div id="menu-row">
+                <DualRangeSlider rangeStart={Values.YEAR_START} rangeEnd={Values.YEAR_END} initialStart={annoStart} initialEnd={annoEnd} updateYears={updateYears}/>
+                <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} initialSelection={selectedAteneo} updateSelection={setSelectedAteneo}/>
+                <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} initialSelection={selectedFacolta} updateSelection={setSelectedFacolta}/>
+                <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
+                <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD}/>
+                <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia}/>
+                <button onClick={updateLineChart}>update chart</button>
             </div>
             {/* Grafici */}
             <svg className="chart" ref={ref} />

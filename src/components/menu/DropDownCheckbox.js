@@ -4,12 +4,12 @@ import Checkbox from './Checkbox';
 
 import './Menu.css';
 
-export default function DropDownCheckbox({title, options, updateSelection}) {
+export default function DropDownCheckbox({title, options, initialSelection, updateSelection}) {
 
     
     const [visible, setVisible] = useState(false);
 
-    const [selectedOptions, setSelectedOptions] = useState(options);
+    const [selectedOptions, setSelectedOptions] = useState(initialSelection);
 
     function toggleAll() {
         if (selectedOptions == options) {

@@ -4,13 +4,13 @@ import Values from '../../DB/Values';
 
 import './Menu.css';
 
-export default function DualRangeSlider({rangeStart, rangeEnd, updateYears}) {
+export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, initialEnd, updateYears}) {
 
     const sliderColor = '#C6C6C6';
     const rangeColor = "rgb(29, 83, 163)";          // #25daa5
 
-    const [from, setFrom] = useState(rangeStart);
-    const [to, setTo] = useState(rangeEnd);
+    const [from, setFrom] = useState(initialStart);
+    const [to, setTo] = useState(initialEnd);
 
     const controlSliderId = '#toSlider';
 
