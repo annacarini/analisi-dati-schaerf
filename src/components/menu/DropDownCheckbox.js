@@ -15,10 +15,12 @@ export default function DropDownCheckbox({title, options, initialSelection, upda
         if (selectedOptions == options) {
             console.log("de selecting all");
             setSelectedOptions([]);
+            updateSelection([]);
         }
         else {
             console.log("selecting all");
             setSelectedOptions(options);
+            updateSelection(options);
         }
     }
 

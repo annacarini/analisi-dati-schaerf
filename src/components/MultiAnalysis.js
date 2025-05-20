@@ -17,7 +17,7 @@ export default function MultiAnalysis({dataset}) {
     const margin = {top: 10, right: 0, bottom: 30, left: 40};
 
     // Range di anni
-    const [annoStart, setAnnoStart] = useState("2006");
+    const [annoStart, setAnnoStart] = useState(2006);
     const [annoEnd, setAnnoEnd] = useState(Values.YEAR_END);
 
     // Opzioni selezionate
@@ -41,6 +41,7 @@ export default function MultiAnalysis({dataset}) {
 
 
     function updateLineChart() {
+        console.log("updating chart");
         lineChart.update(computeData(), annoStart, annoEnd);
     }
 
@@ -76,7 +77,6 @@ export default function MultiAnalysis({dataset}) {
         );
     }
 
-
     function filterRowWithAteneo(row, ateneo) {
         return (
             (row[Values.FIELD_ATENEO].toLowerCase() == ateneo.toLowerCase()) &&
@@ -92,6 +92,9 @@ export default function MultiAnalysis({dataset}) {
     
 
     function computeData() {
+
+        console.log("computing data");
+
         // Per tenere traccia del valore Y massimo
         var maxCount = 0;
 

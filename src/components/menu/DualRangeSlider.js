@@ -7,7 +7,7 @@ import './Menu.css';
 export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, initialEnd, updateYears}) {
 
     const sliderColor = '#C6C6C6';
-    const rangeColor = "rgb(29, 83, 163)";          // #25daa5
+    const rangeColor = "rgb(29, 83, 163)";
 
     const [from, setFrom] = useState(initialStart);
     const [to, setTo] = useState(initialEnd);
@@ -19,7 +19,7 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
     },[]);
 
     
-    function fillSlider() {
+    function fillSlider(from, to) {
         const rangeDistance = rangeEnd - rangeStart;
         const fromPosition = from - rangeStart;
         const toPosition = to - rangeStart;
@@ -45,7 +45,7 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
     
 
     function init() {
-        fillSlider();
+        fillSlider(from, to);
         setToggleAccessible(document.querySelector('#toSlider'));
     }
 
@@ -56,7 +56,7 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
           elem.value = to;
         }
         setFrom(elem.value);
-        fillSlider();
+        fillSlider(elem.value, to);
 
         updateYears(elem.value, to);
     }
@@ -66,7 +66,7 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
           elem.value = from;
         }
         setTo(elem.value);
-        fillSlider();
+        fillSlider(from, elem.value);
 
         updateYears(from, elem.value);
     }

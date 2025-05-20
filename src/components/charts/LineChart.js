@@ -15,11 +15,14 @@ export default class LineChart {
         this.color = color;
 
         d3.selectAll(".tooltip").remove();
-        d3.select('body').append('div')
+        const toolTipDiv = d3.select('body').append('div')
             .attr("id", "toolTipDiv")   
             .attr('class', 'tooltip')               
             .style('opacity', 0)
             .style('position', "absolute");
+
+        const closeTooltipFunc = this.closeTooltip;
+        svg.on('mouseover', function(event, d) { closeTooltipFunc(toolTipDiv); })
     }
 
 
@@ -187,9 +190,6 @@ export default class LineChart {
                 .enter()
                 .append("circle")
                     .attr("class","myCircles")
-                    .attr("fill", this.color)
-                    .style("stroke","transparent")
-                    .style("stroke-width","15px")
                     .merge(c)
                     .transition()
                     .duration(this.animationDuration)
@@ -213,13 +213,16 @@ export default class LineChart {
                 .enter()
                 .append("circle")
                     .attr("class","myCircles")
-                    .attr("fill", this.color)
-                    .style("stroke","transparent")
-                    .style("stroke-width","15px")
+                    .merge(c)
                     .attr("cx", function(d) { return xScale(d.anno) })
                     .attr("cy", function(d) { return yScale(d.conta) })
                     .attr("r", 3);
         }
+
+        // Altri attributi
+        c.attr("fill", this.color)
+            .style("stroke","transparent")
+            .style("stroke-width","10px");
 
 
         // me li devo salvare qua perche' sotto perde il riferimento a "this"
@@ -228,10 +231,11 @@ export default class LineChart {
 
         // Tooltip on mouseover
         c
+            .attr("z-index", "3")
             //.on("mouseleave", function(event, d) { closeTooltipFunc(toolTipDiv); })
             .on("mouseout", function(event, d) { closeTooltipFunc(toolTipDiv); })
-            //.on('mouseover', function(event, d) { openTooltipFunc(toolTipDiv, event, d); })
-            .on('mouseenter', function(event, d) { openTooltipFunc(toolTipDiv, event, d); });
+            .on('mouseover', function(event, d) { openTooltipFunc(toolTipDiv, event, d); })
+            //.on('mouseenter', function(event, d) { openTooltipFunc(toolTipDiv, event, d); });
 
     }
 

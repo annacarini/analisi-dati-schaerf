@@ -61,10 +61,11 @@
     position: absolute;
     z-index: 3;
     background-color: white;
-    width: 5.5vw;
+    width: 8vw;
     min-width: fit-content;
     text-align: left;
   }
+
   
   .dropdown-check-list ul.items hr {
     margin: 5px 0;
@@ -78,6 +79,11 @@
     list-style: none;
   }
   
+
+  .dropdown-check-list ul.items li.checked-true {
+    background-color: #d8e8ed;
+  }
+
   .dropdown-check-list .anchor {
     color: #2c2c2c;
   }
