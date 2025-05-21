@@ -8,6 +8,7 @@ import Values from "../DB/Values";
 
 import LineChart from './charts/LineChart';
 import MultiLineChart from './charts/MultiLineChart';
+import ChartLegend from './charts/ChartLegend';
 
 import ChartDataAtenei from '../models/ChartDataAtenei';
 import ChartDataSingleAteneo from '../models/ChartDataSingleAteneo';
@@ -22,22 +23,25 @@ export default function MultiAnalysis({dataset}) {
     const margin = {top: 10, right: 0, bottom: 30, left: 40};
 
     // Range di anni
-    const [annoStart, setAnnoStart] = useState(2006);
+    const [annoStart, setAnnoStart] = useState(2000);
     const [annoEnd, setAnnoEnd] = useState(Values.YEAR_END);
 
     // Opzioni selezionate
-    const [selectedAteneo, setSelectedAteneo] = useState(['ROMA "La Sapienza"','BOLOGNA', 'ROMA "Tor Vergata"']);
-    //var selectedFacolta = ['Farmacia e Medicina', 'Ingegneria'];
+    const [selectedAteneo, setSelectedAteneo] = useState(['ROMA "La Sapienza"','ROMA TRE', 'ROMA "Tor Vergata"']);
     const [selectedFacolta, setSelectedFacolta] = useState(Values.VALUES_FACOLTA);
     const [selectedSC, setSelectedSC] = useState(Values.VALUES_SC);
     const [selectedSSD, setSelectedSSD] = useState(Values.VALUES_SSD);
-    const [selectedFascia, setSelectedFascia] = useState(['Ordinario']);
+    const [selectedFascia, setSelectedFascia] = useState(Values.VALUES_FASCIA);
     
 
     const [lineChart, setLineChart] = useState(null);
 
-    //const [xAxis, setXAxis] = useState(null);
-    //const [yAxis, setYAxis] = useState(null);
+
+    // Dati per il grafico
+    const [data, setData] = useState([]);
+
+    // Per il caricamento
+    const [loadingData, setLoadingData] = useState(false);
 
 
     useEffect(() => {
@@ -45,7 +49,7 @@ export default function MultiAnalysis({dataset}) {
     },[]);
 
     
-    function initializeLineChart() {
+    async function initializeLineChart() {
         const svg = d3.select(ref.current);
         var width = 0.8*window.innerWidth - margin.left - margin.right;
         var height = 500 - margin.top - margin.bottom;
@@ -54,15 +58,15 @@ export default function MultiAnalysis({dataset}) {
         const lchart = new MultiLineChart(svg, margin, width, height);
         setLineChart(lchart);
 
-        const vals = computeData();
+        const vals = await computeData();
 
         lchart.draw(vals, annoStart, annoEnd);
     }
 
 
-    function updateLineChart() {
+    async function updateLineChart() {
         console.log("updating chart");
-        const vals = computeData();
+        const vals = await computeData();
         lineChart.update(vals, annoStart, annoEnd);
     }
 
@@ -103,20 +107,25 @@ export default function MultiAnalysis({dataset}) {
         );
     }
 
-    function computeData() {
+
+    async function computeData() {
+        setLoadingData(true);
+
         //var ateneo = selectedAteneo[0];
-        var data = [];
+        var _data = [];
         var currentMax = 0;
 
         selectedAteneo.map( ateneo => {
             const ateneoData = computeDataAteneo(ateneo);
-            data.push(ateneoData);
+            _data.push(ateneoData);
             if (ateneoData.max > currentMax) {
                 currentMax = ateneoData.max;
             }
         });
 
-        return new ChartDataAtenei(currentMax, data);
+        setData(_data);
+        setLoadingData(false);
+        return new ChartDataAtenei(currentMax, _data);
     }
     
 
@@ -153,10 +162,16 @@ export default function MultiAnalysis({dataset}) {
                 <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
                 <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD}/>
                 <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia}/>
-                <button onClick={updateLineChart}>update chart</button>
+                <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
             </div>
             {/* Grafici */}
             <svg className="chart" ref={ref} />
+            {/* Legenda */}
+            <div className='legend'>
+                {data.map((ateneo, index) =>
+                    <ChartLegend key={index} text={ateneo.ateneo} color={ateneo.color}/>
+                )}
+            </div>
         </div>
     )
 }

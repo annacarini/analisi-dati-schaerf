@@ -97,18 +97,16 @@ export default function Main() {
 
     return (
         <div id="main">
-            Analisi dati
             {/* Barra pulsanti analisi singola/multipla */}
-            <div className="flex-row">
-                <button onClick={() => {setMultiSelected(true);}}>Più atenei</button>
-                <button onClick={() => {setMultiSelected(false);}}>Singolo ateneo</button>
+            <div className="analysis-type-row">
+                <button className={"active-" + multiSelected} onClick={() => {setMultiSelected(true);}}>Più atenei</button>
+                <button className={"active-" + !multiSelected} onClick={() => {setMultiSelected(false);}}>Singolo ateneo</button>
             </div>
+            <hr className='row-under-buttons'/>
             {datasetReady
             ? <div>
-                {multiSelected
-                    ? <MultiAnalysis dataset={dataset}/>
-                    : <SingleAnalysis/>
-                }
+                <div style={{/*visibility: multiSelected ? 'visible' : 'hidden',*/ display: multiSelected ? 'block' : 'none'}}><MultiAnalysis dataset={dataset}/></div>
+                <div style={{/*visibility: !multiSelected ? 'visible' : 'hidden', */ display: !multiSelected ? 'block' : 'none'}}><SingleAnalysis/></div>
             </div>
             : <div>
                 Loading dataset...

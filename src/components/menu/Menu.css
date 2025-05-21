@@ -12,11 +12,20 @@
     justify-content: space-between;
 }
 
+
+#update-chart-button {
+  border: none;
+  padding: 1vh 1vw;
+  border-radius: 15px;
+  background-color: rgb(29, 83, 163);
+  /*font-weight: bold;*/
+  font-size: 12pt;
+  color: white;
+}
   
   
   
   /* Dropdown checkbox */
-
 
 .dropdown-check-list {
     display: inline-block;
@@ -81,8 +90,10 @@
   
 
   .dropdown-check-list ul.items li.checked-true {
-    background-color: #d8e8ed;
+    background-color: rgb(220, 233, 236) ;
   }
+
+
 
   .dropdown-check-list .anchor {
     color: #2c2c2c;
@@ -102,7 +113,7 @@
   
   .sliders_control {
     position: relative;
-    min-height: 3vh;
+    height: 1.6vh;
   }
   
   .form_control {
@@ -133,6 +144,7 @@
     border-radius: 50%;
     box-shadow: 0 0 0 1px #C6C6C6;
     cursor: pointer;  
+    z-index: 3;
   }
   
   input[type=range]::-webkit-slider-thumb:hover {
@@ -167,7 +179,13 @@
     transform: translateX(-50%);
   }
   
-  #fromSlider {
+  
+  .toSlider {
+    z-index: 1;
+  }
+  
+
+  .fromSlider {
     height: 0;
     z-index: 1;
   }

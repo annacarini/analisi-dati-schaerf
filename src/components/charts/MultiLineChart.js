@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 
 import ColorUtilities from "../../utils/ColorUtilities";
+import Colors from "../../utils/Colors";
 
 import "./Charts.css";
 
@@ -24,6 +25,9 @@ export default class MultiLineChart {
 
         toolTipDiv.append("div")
             .attr("id", "toolTipDiv-title");
+
+        toolTipDiv.append("hr")
+            .attr("id", "toolTipDiv-line");
         
         toolTipDiv.append("div")
             .attr("id", "toolTipDiv-content");
@@ -150,7 +154,7 @@ export default class MultiLineChart {
 
 
         for (let i = 0; i < data.length; i++) {
-            this.drawLine(data[i].ateneo, i, data[i].data, myLine, xScale, yScale, withAnimation, ColorUtilities.randomColor());
+            this.drawLine(data[i].ateneo, i, data[i].data, myLine, xScale, yScale, withAnimation, data[i].color);
         }
     }
 
@@ -167,7 +171,7 @@ export default class MultiLineChart {
         // rimuovi i cerchi precedenti (senza "data" non funziona)
         this.svg.selectAll(".myCircles-" + index).data(data).exit().remove();
 
-        var c = this.svg.selectAll(".myCircles-" + index).append("g");  // append g non funziona, da rivedere
+        var c = this.svg.selectAll(".myCircles-" + index); //.append("g");  // append g non funziona, da rivedere
 
 
         var toolTipDiv = d3.select('#toolTipDiv');
@@ -229,26 +233,47 @@ export default class MultiLineChart {
         // me li devo salvare qua perche' sotto perde il riferimento a "this"
         const closeTooltipFunc = this.closeTooltip;
         const openTooltipFunc = this.openTooltip;
+        const openTooltipNoDataFunc = this.openTooltipNoData;
 
         // Tooltip on mouseover
         c
             .attr("z-index", "3")
             //.on("mouseleave", function(event, d) { closeTooltipFunc(toolTipDiv); })
             .on("mouseout", function(event, d) { closeTooltipFunc(toolTipDiv); })
-            .on('mouseover', function(event, d) { openTooltipFunc(toolTipDiv, ateneo, event, d); })
+            .on('mouseover', function(event, d) { openTooltipFunc(toolTipDiv, ateneo, color, event, d); })
             //.on('mouseenter', function(event, d) { openTooltipFunc(toolTipDiv, event, d); });
+
+        u
+            .on("mouseout", function(event, d) { closeTooltipFunc(toolTipDiv); })
+            .on('mouseover', function(event, d) { openTooltipNoDataFunc(toolTipDiv, ateneo, color, event); })
     }
 
 
     
-    openTooltip(tooltip, ateneo, event, d) {
+    openTooltip(tooltip, ateneo, color, event, d) {
         //console.log(d); 
         tooltip
             .style('left', (event.pageX) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
         d3.select("#toolTipDiv-title").html(ateneo);
-        d3.select("#toolTipDiv-content").html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>')  
+        d3.select("#toolTipDiv-line").style("background-color", color);
+        d3.select("#toolTipDiv-content").html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>');
+
+        tooltip.transition()        
+            .duration(200)      
+            .style('opacity', 1);     
+    }
+        
+    openTooltipNoData(tooltip, ateneo, color, event) {
+        //console.log(d); 
+        tooltip
+            .style('left', (event.pageX) + 'px')     
+            .style('top', (event.pageY - 28) + 'px');
+
+        d3.select("#toolTipDiv-title").html(ateneo);
+        d3.select("#toolTipDiv-line").style("background-color", color);
+        d3.select("#toolTipDiv-content").html('');
 
         tooltip.transition()        
             .duration(200)      

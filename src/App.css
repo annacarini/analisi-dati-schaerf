@@ -5,7 +5,7 @@ html, body, .App {
 
 .App {
   text-align: center;
-  background-color: rgb(211, 231, 226);
+  background-color: rgb(220, 233, 236); /*rgb(211, 231, 226);*/
   position: absolute;
 }
 
@@ -36,6 +36,20 @@ html, body, .App {
 }
 
 
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+  background-color: gray;
+}
+
+
+input[type='radio'], input[type='checkbox'] {
+    accent-color: rgb(29, 83, 163);
+}
+
+
 
 #main {
   height: 95%;
@@ -49,22 +63,55 @@ html, body, .App {
 }
 
 
-
-/* Stile chart */
-
-#line-chart {
-  background-color: rgb(255, 246, 193);
-  padding: 0 0;
+.analysis-type-row {
+  display: flex;
+  flex-direction: row;
+  background-color: #dfa4af;  /*#da95a2;*/
+  /*height: 5vh;*/
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  align-items: end;
+  justify-content: center;
 }
 
-.line {
-  fill: none;
-  stroke: #00bfa6;
-  stroke-width: 3;
+.analysis-type-row button {
+  border: 1px solid white;
+  color: white;
+  border-bottom: none;
+  background: none;
+  /*background-color: #dfa4af;*/
+  /*height: 100%;*/
+  position: relative;
+  bottom: 0;
+  padding: 0.5vh 0;
+  width: 8vw;
+  min-width: fit-content;
+  font-size: 12pt;
+  padding: 0.5vh 1vw;
+  margin: 0 0.3vw;
+  margin-top: 1vh;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
-#x-axis .domain, #y-axis .domain  {
-  stroke: #E04836;
-  stroke-width: 3;
-  opacity: 0.6;
+.analysis-type-row button.active-true {
+  background-color: #c56474; /*#cb7381;*/
+  font-weight: bold;
+}
+
+.row-under-buttons {
+  background-color: #c56474;
+  border: none;
+  /*border-top: 1px solid white;*/
+  height: 3px;
+  margin: 0;
+}
+
+.legend {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-height: 10vh;
+  overflow: auto;
+  margin: 2vh 0.5vw;
 }

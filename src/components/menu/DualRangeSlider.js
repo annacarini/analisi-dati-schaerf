@@ -1,6 +1,5 @@
-import {React, useEffect, useState} from 'react';
+import { useEffect, useState, useRef } from 'react';
 
-import Values from '../../DB/Values';
 
 import './Menu.css';
 
@@ -12,7 +11,12 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
     const [from, setFrom] = useState(initialStart);
     const [to, setTo] = useState(initialEnd);
 
-    const controlSliderId = '#toSlider';
+
+    const toSliderRef = useRef(null);
+    const fromSliderRef = useRef(null);
+    const toInputRef = useRef(null);
+    const fromInputRef = useRef(null);
+
 
     useEffect(() => {
         init();
@@ -23,35 +27,33 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
         const rangeDistance = rangeEnd - rangeStart;
         const fromPosition = from - rangeStart;
         const toPosition = to - rangeStart;
-        const controlSlider = document.querySelector(controlSliderId);
-        controlSlider.style.background = `linear-gradient(to right,
+
+        toSliderRef.current.style.background = `linear-gradient(to right,
           ${sliderColor} 0%,
           ${sliderColor} ${(fromPosition)/(rangeDistance)*100}%,
           ${rangeColor} ${(fromPosition)/(rangeDistance)*100}%,
           ${rangeColor} ${(toPosition)/(rangeDistance)*100}%, 
           ${sliderColor} ${(toPosition)/(rangeDistance)*100}%, 
           ${sliderColor} 100%)`;
-        
     }
     
+    
     function setToggleAccessible(currentTarget) {
-      const toSlider = document.querySelector('#toSlider');
       if (Number(currentTarget.value) <= 0 ) {
-        toSlider.style.zIndex = 2;
+        toSliderRef.current.style.zIndex = 2;
       } else {
-        toSlider.style.zIndex = 0;
+        toSliderRef.current.style.zIndex = 0;
       }
     }
     
 
     function init() {
         fillSlider(from, to);
-        setToggleAccessible(document.querySelector('#toSlider'));
+        setToggleAccessible(toSliderRef.current);
     }
 
 
-    function handleFromChange(id) {
-        const elem = document.querySelector(id);
+    function handleFromChange(elem) {
         if (elem.value > to) {
           elem.value = to;
         }
@@ -60,8 +62,7 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
 
         updateYears(elem.value, to);
     }
-    function handleToChange(id) {
-        const elem = document.querySelector(id);
+    function handleToChange(elem) {
         if (elem.value < from) {
           elem.value = from;
         }
@@ -74,15 +75,15 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
     return (
         <div className="range_container">
             <div className="sliders_control">
-                <input id="fromSlider" type="range" onInput={() => {handleFromChange('#fromSlider')}} value={from} min={rangeStart} max={rangeEnd}/>
-                <input id="toSlider" type="range" onInput={() => {handleToChange('#toSlider')}} value={to} min={rangeStart} max={rangeEnd}/>
+                <input className="fromSlider" type="range" ref={fromSliderRef} onInput={() => {handleFromChange(fromSliderRef.current)}} value={from} min={rangeStart} max={rangeEnd}/>
+                <input className="toSlider" type="range" ref={toSliderRef} onInput={() => {handleToChange(toSliderRef.current)}} value={to} min={rangeStart} max={rangeEnd}/>
             </div>
             <div className="form_control">
                 <div className="form_control_container">
-                    <input className="form_control_container__time__input" type="number" id="fromInput" onInput={() => {handleFromChange('#fromInput')}} value={from} min={rangeStart} max={rangeEnd}/>
+                    <input className="form_control_container__time__input fromInput" type="number" ref={fromInputRef} onInput={() => {handleFromChange(fromInputRef.current)}} value={from} min={rangeStart} max={rangeEnd}/>
                 </div>
                 <div className="form_control_container">
-                    <input className="form_control_container__time__input" type="number" id="toInput" onInput={() => {handleToChange('#toInput')}} value={to} min={rangeStart} max={rangeEnd}/>
+                    <input className="form_control_container__time__input toInput" type="number" ref={toInputRef} onInput={() => {handleToChange(toInputRef.current)}} value={to} min={rangeStart} max={rangeEnd}/>
                 </div>
             </div>
             {/*<button onClick={() => {console.log("from " + from + " to " + to);}}>print</button>*/}
