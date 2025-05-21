@@ -18,9 +18,11 @@ import '../App.css';
 
 export default function MultiAnalysis({dataset}) {
 
-    const ref = useRef();
+    const refSVG = useRef();
 
     const margin = {top: 10, right: 0, bottom: 30, left: 40};
+    const WIDTH_PERCENTAGE = 0.8;
+    const HEIGHT_PERCENTAGE = 0.6;
 
     // Range di anni
     const [annoStart, setAnnoStart] = useState(2000);
@@ -50,9 +52,9 @@ export default function MultiAnalysis({dataset}) {
 
     
     async function initializeLineChart() {
-        const svg = d3.select(ref.current);
-        var width = 0.8*window.innerWidth - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
+        const svg = d3.select(refSVG.current);
+        var width = WIDTH_PERCENTAGE*window.innerWidth - margin.left - margin.right;
+        var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
 
         // Crea chart
         const lchart = new MultiLineChart(svg, margin, width, height);
@@ -165,7 +167,7 @@ export default function MultiAnalysis({dataset}) {
                 <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
             </div>
             {/* Grafici */}
-            <svg className="chart" ref={ref} />
+            <svg className="chart" ref={refSVG}/>
             {/* Legenda */}
             <div className='legend'>
                 {data.map((ateneo, index) =>

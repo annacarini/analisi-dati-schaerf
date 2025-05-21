@@ -38,18 +38,10 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
     }
     
     
-    function setToggleAccessible(currentTarget) {
-      if (Number(currentTarget.value) <= 0 ) {
-        toSliderRef.current.style.zIndex = 2;
-      } else {
-        toSliderRef.current.style.zIndex = 0;
-      }
-    }
     
 
     function init() {
         fillSlider(from, to);
-        setToggleAccessible(toSliderRef.current);
     }
 
 

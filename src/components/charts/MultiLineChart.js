@@ -67,12 +67,12 @@ export default class MultiLineChart {
         const countPerAteneo = vals.data;
         const countPerAnno = vals.data[0].data;
 
+
         // Prendi elemento svg
-        this.svg.attr("width",this. width + this.margin.left + this.margin.right)
+        this.svg.attr("width",this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom)
             .attr("id", "line-chart");             // assegno un id per i css
-            //.attr("transform", `translate(${margin.left},${margin.top})`);
-        
+
 
         //scales
         const xScale = d3.scaleLinear().range([this.margin.left, this.width - this.margin.right]);
@@ -94,6 +94,18 @@ export default class MultiLineChart {
             .call(yAxis);
         
 
+        // Grid
+        const yGrid = d3.axisLeft()
+            .scale(yScale)
+            .tickFormat('')
+            .ticks(10)
+            .tickSizeInner(-this.width + this.margin.left + this.margin.right);
+
+        this.svg.append('g')
+            .attr('class', 'y-grid')
+            .attr('transform', `translate(${this.margin.left}, 0)`)
+            .call(yGrid).call(g => g.select(".domain").remove());
+
 
 
         this.update(vals, xStart, xEnd, false);
@@ -101,7 +113,7 @@ export default class MultiLineChart {
 
 
     
-    update(vals, xStart, xEnd, withAnimation=true) {
+    update(vals, xStart, xEnd, withAnimation=false) {
 
         const maxCount = vals.max;
         const data = vals.data;
@@ -119,7 +131,7 @@ export default class MultiLineChart {
         const yAxis = d3.axisLeft(yScale).ticks(10);
 
 
-
+        /*
         if (withAnimation) {
             // Update the X axis:
             xScale.domain([xStart, xEnd]);
@@ -133,18 +145,25 @@ export default class MultiLineChart {
                 .transition()
                 .duration(this.animationDuration)
                 .call(yAxis);
-        }
-        else {
-            // Update the X axis:
-            xScale.domain([xStart, xEnd]);
-            this.svg.selectAll("#x-axis").call(xAxis);
-
-            // Update the Y axis
-            yScale.domain([0, 1.1*maxCount]);
-            this.svg.selectAll("#y-axis").call(yAxis);
-        }
+        }*/
 
 
+        // Update the X axis:
+        xScale.domain([xStart, xEnd]);
+        this.svg.selectAll("#x-axis").call(xAxis);
+
+        // Update the Y axis
+        yScale.domain([0, 1.1*maxCount]);
+        this.svg.selectAll("#y-axis").call(yAxis);
+
+        // aggiorna grid
+        const yGrid = d3.axisLeft()
+            .scale(yScale)
+            .tickFormat('')
+            .ticks(10)
+            .tickSizeInner(-this.width + this.margin.left + this.margin.right);
+        this.svg.selectAll(".y-grid").call(yGrid).call(g => g.select(".domain").remove());
+        
         
         //line generator
         const myLine = d3.line()
@@ -153,14 +172,23 @@ export default class MultiLineChart {
         
 
 
+        // Create a update selection: bind to the new data
+        this.svg.selectAll(".lineTest").remove();
+
+        // rimuovi i cerchi precedenti (senza "data" non funziona)
+        this.svg.selectAll(".myCircles").remove();
+
+
+
+
         for (let i = 0; i < data.length; i++) {
-            this.drawLine(data[i].ateneo, i, data[i].data, myLine, xScale, yScale, withAnimation, data[i].color);
+            this.drawLine(data[i].ateneo, i, data[i].data, myLine, xScale, yScale, data[i].color);
         }
     }
 
 
-
-    drawLine(ateneo, index, data, lineGenerator, xScale, yScale, withAnimation, color="steelblue") {
+    /*
+    drawLineWithAnimation(ateneo, index, data, lineGenerator, xScale, yScale, withAnimation, color="steelblue") {
 
         console.log("drawing line for ateneo " + ateneo);
 
@@ -246,6 +274,51 @@ export default class MultiLineChart {
         u
             .on("mouseout", function(event, d) { closeTooltipFunc(toolTipDiv); })
             .on('mouseover', function(event, d) { openTooltipNoDataFunc(toolTipDiv, ateneo, color, event); })
+    }
+    */
+
+
+    drawLine(ateneo, index, data, lineGenerator, xScale, yScale, color="steelblue") {
+
+        console.log("drawing line for ateneo " + ateneo);
+
+
+        var toolTipDiv = d3.select('#toolTipDiv');
+        // me li devo salvare qua perche' sotto perde il riferimento a "this"
+        const closeTooltipFunc = this.closeTooltip;
+        const openTooltipFunc = this.openTooltip;
+        const openTooltipNoDataFunc = this.openTooltipNoData;
+
+        // Create a update selection: bind to the new data
+        var u = this.svg.selectAll(".lineTest-" + index).data([data], function(d){ return d.anno });
+        var group = this.svg.append("g");  
+
+        u.enter()
+            .append("path")
+            .attr("class","lineTest lineTest-" + index)
+            .merge(u)
+            .attr("d", lineGenerator)
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-width", 2.5)
+            .on("mouseout", function(event, d) { closeTooltipFunc(toolTipDiv); })
+            .on('mouseover', function(event, d) { openTooltipNoDataFunc(toolTipDiv, ateneo, color, event); });
+                
+        group
+            .attr("class","myCircles")
+            .selectAll(".myCircles-" + index)
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class","myCircles-" + index)
+            .attr("fill", color)
+            .style("stroke","transparent")
+            .style("stroke-width","10px")
+            .attr("cx", function(d) { return xScale(d.anno) })
+            .attr("cy", function(d) { return yScale(d.conta) })
+            .attr("r", 3)
+            .on("mouseout", function(event, d) { closeTooltipFunc(toolTipDiv); })
+            .on('mouseover', function(event, d) { openTooltipFunc(toolTipDiv, ateneo, color, event, d); });
     }
 
 
