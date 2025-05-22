@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/analisi-dati-schaerf/static/css/main.4e7e544d.css",
-    "main.js": "/analisi-dati-schaerf/static/js/main.0f948498.js",
+    "main.css": "/analisi-dati-schaerf/static/css/main.1197f27f.css",
+    "main.js": "/analisi-dati-schaerf/static/js/main.e361213a.js",
     "static/js/453.96030e14.chunk.js": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js",
     "static/media/completo_2008.csv": "/analisi-dati-schaerf/static/media/completo_2008.71a1b16cd8fa0bdabb24.csv",
     "static/media/completo_2007.csv": "/analisi-dati-schaerf/static/media/completo_2007.9b9eac4306b5dc45e585.csv",
@@ -29,12 +29,12 @@
     "static/media/completo_2000.csv": "/analisi-dati-schaerf/static/media/completo_2000.e5a81075cbf81c73a417.csv",
     "static/media/completo_2024.csv": "/analisi-dati-schaerf/static/media/completo_2024.958f70e54acb3f3a5892.csv",
     "index.html": "/analisi-dati-schaerf/index.html",
-    "main.4e7e544d.css.map": "/analisi-dati-schaerf/static/css/main.4e7e544d.css.map",
-    "main.0f948498.js.map": "/analisi-dati-schaerf/static/js/main.0f948498.js.map",
+    "main.1197f27f.css.map": "/analisi-dati-schaerf/static/css/main.1197f27f.css.map",
+    "main.e361213a.js.map": "/analisi-dati-schaerf/static/js/main.e361213a.js.map",
     "453.96030e14.chunk.js.map": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.4e7e544d.css",
-    "static/js/main.0f948498.js"
+    "static/css/main.1197f27f.css",
+    "static/js/main.e361213a.js"
   ]
 }
