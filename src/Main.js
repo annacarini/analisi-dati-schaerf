@@ -7,6 +7,9 @@ import SingleAnalysis from './components/SingleAnalysis';
 
 import Values from './DB/Values';
 
+// import file pesi
+import file_pesi from './DB/Pesi.csv';
+
 // import file csv - mi sa che va fatto per forza cosi se no non li vede
 import completo_2000 from './DB/FilesUnitiCSV/completo_2000.csv';
 import completo_2001 from './DB/FilesUnitiCSV/completo_2001.csv';
@@ -48,6 +51,10 @@ export default function Main() {
     // Per scegliere se analizzare piu atenei insieme o solo uno
     const [multiSelected, setMultiSelected] = useState(true);
 
+    // PESI (inizializzati dentro loadPesi)
+    const [pesi, setPesi] = useState({});
+    const [pesiReady, setPesiReady] = useState(false);
+
 
     // DATASET (inizializzato dentro loadDataset)
     const [dataset, setDataset] = useState([]);
@@ -55,34 +62,31 @@ export default function Main() {
 
 
     useEffect(() => {
+        loadPesi();
         loadDataset();
     },[]);
 
 
-    // Inizializza il form
-    function onBodyLoad() {
-
-    }
-
-    /*
-    function loadSingleCSV() {
-        d3.csv(completo_2000).then(
+    
+    function loadPesi() {
+        d3.csv(file_pesi).then(
             function (data) {
-                console.log("loaded");
-                console.log(data[0]);
+                console.log("loaded pesi");
+                //console.log(data);
+
+                var p = {}
+                for (let i=0; i<data.length; i++) {
+                    p[data[i]["Fascia"]] = data[i]["Peso"];
+                }
+
+                setPesi(p);
+                setPesiReady(true);
             }
         );
     }
-    */
+    
 
     function loadDataset() {
-        /*
-        const filePaths = []
-        for (let i = 2000; i < 2025; i++) {
-            filePaths.push(`${CSV_PATH}/completo_${i}.csv`);
-        }
-        */
-
         Promise.all(
             filePaths.map(filepath => d3.csv(filepath))
         ).then(function(files) {
@@ -103,10 +107,10 @@ export default function Main() {
                 <button className={"active-" + !multiSelected} onClick={() => {setMultiSelected(false);}}>Singolo ateneo</button>
             </div>
             <hr className='row-under-buttons'/>
-            {datasetReady
+            {(datasetReady && pesiReady)
             ? <div>
-                <div style={{/*visibility: multiSelected ? 'visible' : 'hidden',*/ display: multiSelected ? 'block' : 'none'}}><MultiAnalysis dataset={dataset}/></div>
-                <div style={{/*visibility: !multiSelected ? 'visible' : 'hidden', */ display: !multiSelected ? 'block' : 'none'}}><SingleAnalysis/></div>
+                <div style={{display: multiSelected ? 'block' : 'none'}}><MultiAnalysis dataset={dataset} pesi={pesi}/></div>
+                <div style={{display: !multiSelected ? 'block' : 'none'}}><SingleAnalysis/></div>
             </div>
             : <div>
                 Loading dataset...

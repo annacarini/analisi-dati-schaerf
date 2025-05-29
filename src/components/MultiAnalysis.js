@@ -4,6 +4,8 @@ import * as d3 from "d3";
 
 import DualRangeSlider from './menu/DualRangeSlider';
 import DropDownCheckbox from './menu/DropDownCheckbox';
+import ToggleSwitch from './menu/ToggleSwitch';
+
 import Values from "../DB/Values";
 
 import LineChart from './charts/LineChart';
@@ -16,7 +18,7 @@ import ChartDataEntry from '../models/ChartDataEntry';
 
 import '../App.css';
 
-export default function MultiAnalysis({dataset}) {
+export default function MultiAnalysis({dataset, pesi}) {
 
     const refSVG = useRef();
 
@@ -146,12 +148,18 @@ export default function MultiAnalysis({dataset}) {
             }
             countPerAnno.push(new ChartDataEntry(anno, count));
         }
-        console.log("ateneo: " + ateneo + ", conta per anno:");
-        console.log(countPerAnno);
+        //console.log("ateneo: " + ateneo + ", conta per anno:");
+        //console.log(countPerAnno);
 
         return new ChartDataSingleAteneo(ateneo, countPerAnno, maxCount);
     }
 
+
+
+    function printPesi() {
+        console.log("pesi:");
+        console.log(pesi);
+    }
 
 
     return (
@@ -165,6 +173,10 @@ export default function MultiAnalysis({dataset}) {
                 <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD}/>
                 <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia}/>
                 <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
+            </div>
+            {/* Scelta asse y e visualizzazione grafico/tabella */}
+            <div id="graph-choice-row">
+                <ToggleSwitch label={"Punti organico"} onChange={printPesi}/>
             </div>
             {/* Grafici */}
             <svg className="chart" ref={refSVG}/>

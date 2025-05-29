@@ -280,7 +280,7 @@ export default class MultiLineChart {
 
     drawLine(ateneo, index, data, lineGenerator, xScale, yScale, color="steelblue") {
 
-        console.log("drawing line for ateneo " + ateneo);
+        //console.log("drawing line for ateneo " + ateneo);
 
 
         var toolTipDiv = d3.select('#toolTipDiv');

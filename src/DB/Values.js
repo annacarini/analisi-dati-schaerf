@@ -316,9 +316,9 @@ export default class Values {
         'Associato non confermato',
         'Incaricato',
         'Ordinario',
-        'Ordinario r.e.',
+        'Ordinario r.e.',                                   // MANCA NEI PUNTI ORGANICI
         'Ricercatore',
-        'Ricercatore a t.d. (art.1 comma 14 L. 230/05)',
+        'Ricercatore a t.d. (art.1 comma 14 L. 230/05)',    // MANCA NEI PUNTI ORGANICI
         'Ricercatore a t.d. - t.defin. (L. 79/2022)',
         'Ricercatore a t.d. - t.defin. (art. 24 c.3-a L. 240/10)',
         'Ricercatore a t.d. - t.defin. (art. 24 c.3-b L. 240/10)',
