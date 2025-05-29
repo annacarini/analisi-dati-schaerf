@@ -76,7 +76,7 @@ export default function Main() {
 
                 var p = {}
                 for (let i=0; i<data.length; i++) {
-                    p[data[i]["Fascia"]] = data[i]["Peso"];
+                    p[data[i]["Fascia"]] = parseFloat(data[i]["Peso"]);
                 }
 
                 setPesi(p);

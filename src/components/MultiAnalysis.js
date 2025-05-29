@@ -42,7 +42,11 @@ export default function MultiAnalysis({dataset, pesi}) {
 
 
     // Dati per il grafico
-    const [data, setData] = useState([]);
+    const [dataCount, setDataCount] = useState(new ChartDataAtenei(0, []));         // conteggio professori
+    const [dataPuntiOrg, setDataPuntiOrg] = useState(new ChartDataAtenei(0, []));   // conteggio punti organico
+
+    // Per cambiare visualizzazione
+    const [showingCount, setShowingCount] = useState(true);
 
     // Per il caricamento
     const [loadingData, setLoadingData] = useState(false);
@@ -63,15 +67,19 @@ export default function MultiAnalysis({dataset, pesi}) {
         setLineChart(lchart);
 
         const vals = await computeData();
+        const valsCount = vals["count"];
+        const valsPuntiOrg = vals["punti"];
 
-        lchart.draw(vals, annoStart, annoEnd);
+        lchart.draw(valsCount, annoStart, annoEnd);
     }
 
 
     async function updateLineChart() {
         console.log("updating chart");
         const vals = await computeData();
-        lineChart.update(vals, annoStart, annoEnd);
+        const valsCount = vals["count"];
+        const valsPuntiOrg = vals["punti"];
+        lineChart.update(valsCount, annoStart, annoEnd);
     }
 
 
@@ -88,70 +96,118 @@ export default function MultiAnalysis({dataset, pesi}) {
     }
 
 
-    function filterRow(row) {
-        return (
-            (selectedAteneo == Values.VALUES_ATENEO || selectedAteneo.includes(row[Values.FIELD_ATENEO])) &&
-            (selectedFacolta == Values.VALUES_FACOLTA || selectedFacolta.includes(row[Values.FIELD_FACOLTA])) &&
-            (selectedFascia == Values.VALUES_FASCIA || selectedFascia.includes(row[Values.FIELD_FASCIA])) &&
-            (selectedSC == Values.VALUES_SC || selectedSC.includes(row[Values.FIELD_SC])) &&
-            (selectedSSD == Values.VALUES_SSD || selectedSSD.includes(row[Values.FIELD_SSD]))
-        );
-    }
-
-    function filterRowWithAteneo(row, ateneo) {
-        return (
-            (row[Values.FIELD_ATENEO].toLowerCase() == ateneo.toLowerCase()) &&
-            (  selectedFacolta == Values.VALUES_FACOLTA ||
-               selectedFacolta.map((str) => str.toLowerCase()).includes(row[Values.FIELD_FACOLTA].toLowerCase()) ||
-               selectedFacolta.map((str) => str.toLowerCase()).includes(row[Values.FIELD_STRUTTURA].toLowerCase())
-            ) &&
-            (selectedFascia == Values.VALUES_FASCIA || selectedFascia.includes(row[Values.FIELD_FASCIA])) &&
-            (selectedSC == Values.VALUES_SC || selectedSC.includes(row[Values.FIELD_SC])) &&
-            (selectedSSD == Values.VALUES_SSD || selectedSSD.includes(row[Values.FIELD_SSD]))
-        );
-    }
-
 
     async function computeData() {
+
+        console.log("inizio compute data 2");
+        let startTime = performance.now();
+
         setLoadingData(true);
-
-        //var ateneo = selectedAteneo[0];
-        var _data = [];
-        var currentMax = 0;
-
-        selectedAteneo.map( ateneo => {
-            const ateneoData = computeDataAteneo(ateneo);
-            _data.push(ateneoData);
-            if (ateneoData.max > currentMax) {
-                currentMax = ateneoData.max;
-            }
-        });
-
-        setData(_data);
-        setLoadingData(false);
-        return new ChartDataAtenei(currentMax, _data);
-    }
     
+        var totalCount = {};
+        var totalPuntiOrg = {};
 
-    function computeDataAteneo(ateneo) {
+        // inizializzo la struttura dati
+        for (const ateneo of selectedAteneo) {
+            totalCount[ateneo] = {};
+            totalPuntiOrg[ateneo] = {};
+        }
 
-        // Per tenere traccia del valore Y massimo
+        // itero sugli anni perche' per ogni anno ho un file diverso
+        for (let anno = annoStart; anno <= annoEnd; anno++) {
+
+            // inizializzo per ogni ateneo la conta per ogni anno
+            for (const ateneo of selectedAteneo) {
+                totalCount[ateneo][anno] = 0;
+                totalPuntiOrg[ateneo][anno] = 0;
+            }
+
+            // metto le selezioni in lowercase
+            const selectedAteneoLowerCase = selectedAteneo.map((str) => str.toLowerCase());
+            const selectedFacoltaLowerCase = selectedFacolta.map((str) => str.toLowerCase());
+
+            // prendo il file di quell'anno
+            const data = dataset[getAnnoDatasetIndex(anno)];
+
+            // itero sulle righe del file
+            for (const row of data) {
+                // applico i filtri
+                const rowOk = 
+                    (selectedAteneo == Values.VALUES_ATENEO || selectedAteneoLowerCase.includes(row[Values.FIELD_ATENEO].toLowerCase())) &&
+                    ( selectedFacolta == Values.VALUES_FACOLTA ||
+                      selectedFacoltaLowerCase.includes(row[Values.FIELD_FACOLTA].toLowerCase()) ||
+                      selectedFacoltaLowerCase.includes(row[Values.FIELD_STRUTTURA].toLowerCase())
+                    ) &&
+                    (selectedFascia == Values.VALUES_FASCIA || selectedFascia.includes(row[Values.FIELD_FASCIA])) &&
+                    (selectedSC == Values.VALUES_SC || selectedSC.includes(row[Values.FIELD_SC])) &&
+                    (selectedSSD == Values.VALUES_SSD || selectedSSD.includes(row[Values.FIELD_SSD]));
+
+                // se la riga rispetta i filtri allora aggiungo il conteggio all'ateneo corrispondente
+                if (rowOk && (row[Values.FIELD_ATENEO] != Values.FIELD_ATENEO)) {
+                    totalCount[row[Values.FIELD_ATENEO]][anno] += 1;
+                    let peso = 0;
+                    if (row[Values.FIELD_FASCIA] in pesi) {
+                        peso = pesi[row[Values.FIELD_FASCIA]];
+                    }
+                    totalPuntiOrg[row[Values.FIELD_ATENEO]][anno] += peso;
+                }
+            }
+        }
+
+        // Metti i dati nel formato giusto
+
+        var totalCountNewFormat = [];
         var maxCount = 0;
 
-        // Conta per l'ateneo quanti professori ci sono per ogni anno
-        var countPerAnno = [];
-        for (let anno = annoStart; anno <= annoEnd; anno++) {
-            const data = dataset[getAnnoDatasetIndex(anno)];
-            const count = data.filter(row => filterRowWithAteneo(row, ateneo)).length;
-            if (count > maxCount) {
-                maxCount = count;
-            }
-            countPerAnno.push(new ChartDataEntry(anno, count));
-        }
-        //console.log("ateneo: " + ateneo + ", conta per anno:");
-        //console.log(countPerAnno);
+        var totalPuntiOrgNewFormat = [];
+        var maxPuntiOrg = 0;
 
-        return new ChartDataSingleAteneo(ateneo, countPerAnno, maxCount);
+        // ora totalCount e' del tipo: {"sapienza":{2000:100, 2001:124, ...}, "roma tre":{...}, ...}
+        for (var ateneo in totalCount) {
+
+            var maxCountAteneo = 0;
+            var maxPuntiOrgAteneo = 0;
+
+            var countPerAnno = [];
+            var puntiOrgPerAnno = [];
+
+            for (let anno = annoStart; anno <= annoEnd; anno++) {
+
+                // arrotonda punti org perche' sono float
+                totalPuntiOrg[ateneo][anno] = Math.round(totalPuntiOrg[ateneo][anno] * 100) / 100;
+
+
+                maxCountAteneo = Math.max(totalCount[ateneo][anno], maxCountAteneo);
+                maxPuntiOrgAteneo = Math.max(totalPuntiOrg[ateneo][anno], maxPuntiOrgAteneo);
+
+                countPerAnno.push(new ChartDataEntry(anno, totalCount[ateneo][anno]));
+                puntiOrgPerAnno.push(new ChartDataEntry(anno, totalPuntiOrg[ateneo][anno]));
+            }
+
+            totalCountNewFormat.push(new ChartDataSingleAteneo(ateneo, countPerAnno, maxCountAteneo));
+            totalPuntiOrgNewFormat.push(new ChartDataSingleAteneo(ateneo, puntiOrgPerAnno, maxPuntiOrgAteneo));
+
+            maxCount = Math.max(maxCount, maxCountAteneo);
+            maxPuntiOrg = Math.max(maxPuntiOrg, maxPuntiOrgAteneo);
+        }
+
+
+        let endTime = performance.now();
+        console.log(endTime - startTime); //in ms 
+        console.log("finito compute data 2");
+        
+        const count = new ChartDataAtenei(maxCount, totalCountNewFormat);
+        const punti = new ChartDataAtenei(maxPuntiOrg, totalPuntiOrgNewFormat)
+
+        setDataCount(count);
+        setDataPuntiOrg(punti);
+
+        setLoadingData(false);
+
+        return {
+            "count": count,
+            "punti": punti
+        };
     }
 
 
@@ -159,6 +215,16 @@ export default function MultiAnalysis({dataset, pesi}) {
     function printPesi() {
         console.log("pesi:");
         console.log(pesi);
+    }
+
+    function toggleShownData() {
+        if (showingCount) {
+            lineChart.update(dataPuntiOrg, annoStart, annoEnd);
+        }
+        else {
+            lineChart.update(dataCount, annoStart, annoEnd);
+        }
+        setShowingCount(!showingCount);
     }
 
 
@@ -176,13 +242,13 @@ export default function MultiAnalysis({dataset, pesi}) {
             </div>
             {/* Scelta asse y e visualizzazione grafico/tabella */}
             <div id="graph-choice-row">
-                <ToggleSwitch label={"Punti organico"} onChange={printPesi}/>
+                <ToggleSwitch label={"Punti organico"} onChange={toggleShownData}/>
             </div>
             {/* Grafici */}
             <svg className="chart" ref={refSVG}/>
             {/* Legenda */}
             <div className='legend'>
-                {data.map((ateneo, index) =>
+                {dataCount.data.map((ateneo, index) =>
                     <ChartLegend key={index} text={ateneo.ateneo} color={ateneo.color}/>
                 )}
             </div>
