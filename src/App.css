@@ -115,3 +115,10 @@ input[type='radio'], input[type='checkbox'] {
   overflow: auto;
   margin: 2vh 0.5vw;
 }
+
+
+#count-punti-selection {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}

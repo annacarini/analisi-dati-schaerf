@@ -212,9 +212,14 @@ export default function MultiAnalysis({dataset, pesi}) {
 
 
 
-    function printPesi() {
-        console.log("pesi:");
-        console.log(pesi);
+
+    function showCount() {
+        lineChart.update(dataCount, annoStart, annoEnd);
+        setShowingCount(true);
+    }
+    function showPunti() {
+        lineChart.update(dataPuntiOrg, annoStart, annoEnd);
+        setShowingCount(false);
     }
 
     function toggleShownData() {
@@ -241,8 +246,20 @@ export default function MultiAnalysis({dataset, pesi}) {
                 <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
             </div>
             {/* Scelta asse y e visualizzazione grafico/tabella */}
-            <div id="graph-choice-row">
+            {/*<div id="graph-choice-row">
                 <ToggleSwitch label={"Punti organico"} onChange={toggleShownData}/>
+            </div>*/}
+            <div id="graph-choice-row">
+                <div id="count-punti-selection">
+                    <div>
+                        <input type="radio" id="count" name="count" value="count" onClick={showCount} checked={showingCount}/>
+                        <label for="count">Quantità professori</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="punti" name="punti" value="punti" onClick={showPunti} checked={!showingCount}/>
+                        <label for="punti">Punti organico</label>
+                    </div>
+                </div>
             </div>
             {/* Grafici */}
             <svg className="chart" ref={refSVG}/>
