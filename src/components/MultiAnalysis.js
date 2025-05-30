@@ -33,6 +33,7 @@ export default function MultiAnalysis({dataset, pesi}) {
     // Opzioni selezionate
     const [selectedAteneo, setSelectedAteneo] = useState(['ROMA "La Sapienza"','ROMA TRE', 'ROMA "Tor Vergata"']);
     const [selectedFacolta, setSelectedFacolta] = useState(Values.VALUES_FACOLTA);
+    const [selectedArea, setSelectedArea] = useState(Values.VALUES_AREA);
     const [selectedSC, setSelectedSC] = useState(Values.VALUES_SC);
     const [selectedSSD, setSelectedSSD] = useState(Values.VALUES_SSD);
     const [selectedFascia, setSelectedFascia] = useState(Values.VALUES_FASCIA);
@@ -112,7 +113,7 @@ export default function MultiAnalysis({dataset, pesi}) {
 
     async function computeData() {
 
-        console.log("inizio compute data 2");
+        console.log("inizio compute data");
         let startTime = performance.now();
 
         setLoadingData(true);
@@ -142,6 +143,12 @@ export default function MultiAnalysis({dataset, pesi}) {
             // prendo il file di quell'anno
             const data = dataset[getAnnoDatasetIndex(anno)];
 
+            // prendo gli ssd selezionati tramite area
+            var selectedSSDViaArea = [];
+            for (const area of selectedArea) {
+                selectedSSDViaArea += Values.VALUES_SSD_PER_AREA[area];
+            }
+
             // itero sulle righe del file
             for (const row of data) {
                 // applico i filtri
@@ -152,6 +159,7 @@ export default function MultiAnalysis({dataset, pesi}) {
                       selectedFacoltaLowerCase.includes(row[Values.FIELD_STRUTTURA].toLowerCase())
                     ) &&
                     (selectedFascia == Values.VALUES_FASCIA || selectedFascia.includes(row[Values.FIELD_FASCIA])) &&
+                    (selectedArea == Values.VALUES_AREA || selectedSSDViaArea.includes(row[Values.FIELD_SSD])) &&
                     (selectedSC == Values.VALUES_SC || selectedSC.includes(row[Values.FIELD_SC])) &&
                     (selectedSSD == Values.VALUES_SSD || selectedSSD.includes(row[Values.FIELD_SSD]));
 
@@ -207,7 +215,7 @@ export default function MultiAnalysis({dataset, pesi}) {
 
         let endTime = performance.now();
         console.log(endTime - startTime); //in ms 
-        console.log("finito compute data 2");
+        console.log("finito compute data");
         
         const count = new ChartDataAtenei(maxCount, totalCountNewFormat);
         const punti = new ChartDataAtenei(maxPuntiOrg, totalPuntiOrgNewFormat)
@@ -259,7 +267,7 @@ export default function MultiAnalysis({dataset, pesi}) {
                     <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} initialSelection={selectedAteneo} updateSelection={setSelectedAteneo}/>
                     <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} initialSelection={selectedFacolta} updateSelection={setSelectedFacolta}/>
                     <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia}/>
-                    <DropDownCheckbox title={"Area"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
+                    <DropDownCheckbox title={"Area"} options={Values.VALUES_AREA} initialSelection={selectedArea} updateSelection={setSelectedArea}/>
                     <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
                     <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD}/>
                     <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
@@ -285,12 +293,12 @@ export default function MultiAnalysis({dataset, pesi}) {
                 <div id="graph-choice-row">
                     <div id="count-punti-selection">
                         <div>
-                            <input type="radio" id="count" name="count" value="count" onClick={showCount} checked={showingCount}/>
-                            <label for="count">Quantità professori</label>
+                            <input type="radio" id="count" name="count" value="count" onChange={showCount} checked={showingCount}/>
+                            <label htmlFor="count">Quantità professori</label>
                         </div>
                         <div>
-                            <input type="radio" id="punti" name="punti" value="punti" onClick={showPunti} checked={!showingCount}/>
-                            <label for="punti">Punti organico</label>
+                            <input type="radio" id="punti" name="punti" value="punti" onChange={showPunti} checked={!showingCount}/>
+                            <label htmlFor="punti">Punti organico</label>
                         </div>
                     </div>
                 </div>

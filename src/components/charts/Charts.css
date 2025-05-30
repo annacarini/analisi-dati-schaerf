@@ -25,6 +25,7 @@
 #line-chart {
   background-color: rgb(245, 245, 245);
   padding: 0 0;
+  border-radius: 15px;
 }
 
 .line {
@@ -39,7 +40,7 @@
   opacity: 1;
 }
 
-.y-grid {
+#y-grid {
   color: #00000012;
 }
 
@@ -54,5 +55,6 @@
 }
 
 .y-axis-label {
-  text-align: center;
+  text-align: left;
+  margin-left: 10px;
 }

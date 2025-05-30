@@ -54,9 +54,9 @@ export default class MultiLineChart {
             .attr("height", this.height + this.margin.top + this.margin.bottom);
 
         // aggiorna posiz asse x e label
-        this.svg.selectAll("#x-axis").attr("transform", `translate(0,${this.height})`);
-        this.svg.selectAll(".x-axis-label").attr("x", this.width + this.margin.left - 20).attr("y", this.height + this.margin.top + 20);
-        this.svg.selectAll(".y-axis-label").attr("x", this.margin.left+20).attr("y", this.margin.top+5);
+        this.svg.select("#x-axis").attr("transform", `translate(0,${this.height})`);
+        this.svg.select("#x-axis-label").attr("x", this.width + this.margin.left - 20).attr("y", this.height + this.margin.top + 20);
+        this.svg.select("#y-axis-label").attr("x", this.margin.left + 25).attr("y", this.margin.top + 5);
 
         // aggiorna grafico
         this.update(this.data, this.xStart, this.xEnd, this.yLabel, this.xLabel, this.withAnimation);
@@ -124,35 +124,23 @@ export default class MultiLineChart {
             .call(yAxis);
         
 
-        // Grid
-        const yGrid = d3.axisLeft()
-            .scale(yScale)
-            .tickFormat('')
-            .ticks(10)
-            .tickSizeInner(-this.width + this.margin.left + this.margin.right);
-
-        this.svg.append('g')
-            .attr('class', 'y-grid')
-            .attr('transform', `translate(${this.margin.left}, 0)`)
-            .call(yGrid).call(g => g.select(".domain").remove());
-
 
         // Add X axis label:
         this.svg.append("text")
             .attr("text-anchor", "end")
+            .attr("id", "x-axis-label")
             .classed("axis-label x-axis-label", true)
             .attr("x", this.width + this.margin.left - 20)
             .attr("y", this.height + this.margin.top + 20)
             .text(xLabel);
 
-
-
         // Y axis label:
         this.svg.append("text")
             .attr("text-anchor", "end")
+            .attr("id", "y-axis-label")
             .classed("axis-label y-axis-label", true)
-            .attr("x", this.margin.left+20)
-            .attr("y", this.margin.top+5)
+            .attr("x", this.margin.left + 25)
+            .attr("y", this.margin.top + 5)
             .text(yLabel)
 
 
@@ -188,34 +176,28 @@ export default class MultiLineChart {
 
         // Update the X axis:
         xScale.domain([xStart, xEnd]);
-        this.svg.selectAll("#x-axis").call(xAxis);
+        this.svg.select("#x-axis").call(xAxis);
 
         // Update the Y axis
         yScale.domain([0, 1.1*maxCount]);
-        this.svg.selectAll("#y-axis").call(yAxis);
-
-        // aggiorna grid
+        this.svg.select("#y-axis").call(yAxis);
+        
+        // Grid
+        this.svg.select("#y-grid").remove();
         const yGrid = d3.axisLeft()
             .scale(yScale)
             .tickFormat('')
             .ticks(10)
             .tickSizeInner(-this.width + this.margin.left + this.margin.right);
-        this.svg.selectAll(".y-grid").call(yGrid).call(g => g.select(".domain").remove());
+        this.svg.append('g')
+            .attr('id', 'y-grid')
+            .attr('transform', `translate(${this.margin.left}, 0)`)
+            .call(yGrid).call(g => g.select(".domain").remove());
 
-
-        // rimuovi linee precedenti
-        this.svg.selectAll(".lineTest").remove();
-
+        
         // aggiorna label
-        this.svg.selectAll(".x-axis-label").text(xLabel);
-        this.svg.selectAll(".y-axis-label").text(yLabel);
-
-        
-        //line generator
-        const myLine = d3.line()
-            .x((d, i) => xScale(d.anno))
-            .y((d) => yScale(d.conta));
-        
+        this.svg.select("#x-axis-label").text(xLabel);
+        this.svg.select("#y-axis-label").text(yLabel);
 
 
         // rimuovi linee precedenti
@@ -225,8 +207,13 @@ export default class MultiLineChart {
         this.svg.selectAll(".myCircles").remove();
 
 
+        //line generator
+        const myLine = d3.line()
+            .x((d, i) => xScale(d.anno))
+            .y((d) => yScale(d.conta));
+        
 
-
+        // disegna nuove linee
         for (let i = 0; i < data.length; i++) {
             this.drawLine(data[i].ateneo, i, data[i].data, myLine, xScale, yScale, data[i].color);
         }
