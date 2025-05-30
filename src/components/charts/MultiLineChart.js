@@ -53,10 +53,8 @@ export default class MultiLineChart {
         this.svg.attr("width",this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom);
 
-        // aggiorna posiz asse x e label
+        // aggiorna posiz asse x
         this.svg.select("#x-axis").attr("transform", `translate(0,${this.height})`);
-        this.svg.select("#x-axis-label").attr("x", this.width + this.margin.left - 20).attr("y", this.height + this.margin.top + 20);
-        this.svg.select("#y-axis-label").attr("x", this.margin.left + 25).attr("y", this.margin.top + 5);
 
         // aggiorna grafico
         this.update(this.data, this.xStart, this.xEnd, this.yLabel, this.xLabel, this.withAnimation);
@@ -125,29 +123,14 @@ export default class MultiLineChart {
         
 
 
-        // Add X axis label:
-        this.svg.append("text")
-            .attr("text-anchor", "end")
-            .attr("id", "x-axis-label")
-            .classed("axis-label x-axis-label", true)
-            .attr("x", this.width + this.margin.left - 20)
-            .attr("y", this.height + this.margin.top + 20)
-            .text(xLabel);
-
-        // Y axis label:
-        this.svg.append("text")
-            .attr("text-anchor", "end")
-            .attr("id", "y-axis-label")
-            .classed("axis-label y-axis-label", true)
-            .attr("x", this.margin.left + 25)
-            .attr("y", this.margin.top + 5)
-            .text(yLabel)
-
-
         this.update(vals, xStart, xEnd, yLabel, xLabel, false);
     }
 
 
+    // per quando switchi visualizzazione
+    updateYValues(vals, yLabel) {
+        this.update(vals, this.xStart, this.xEnd, yLabel, "Anno", false);
+    }
     
     update(vals, xStart, xEnd, yLabel, xLabel="Anno", withAnimation=false) {
 
@@ -195,9 +178,28 @@ export default class MultiLineChart {
             .call(yGrid).call(g => g.select(".domain").remove());
 
         
-        // aggiorna label
-        this.svg.select("#x-axis-label").text(xLabel);
-        this.svg.select("#y-axis-label").text(yLabel);
+        // rimuovi label
+        this.svg.select("#x-axis-label").remove();
+        this.svg.select("#y-axis-label").remove();
+
+
+        // Add X axis label:
+        this.svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("id", "x-axis-label")
+            .classed("axis-label x-axis-label", true)
+            .attr("x", this.width + this.margin.left - 20)
+            .attr("y", this.height + this.margin.top + 20)
+            .text(xLabel);
+
+        // Y axis label:
+        this.svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("id", "y-axis-label")
+            .classed("axis-label y-axis-label", true)
+            .attr("x", this.margin.left + 25)
+            .attr("y", this.margin.top + 5)
+            .text(yLabel)
 
 
         // rimuovi linee precedenti

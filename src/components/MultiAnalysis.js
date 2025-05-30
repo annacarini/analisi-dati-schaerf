@@ -92,9 +92,13 @@ export default function MultiAnalysis({dataset, pesi}) {
         const vals = await computeData();
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
-        var yLabel = countYLabel;
-        if (!showingCount) yLabel = puntiYLabel
-        lineChart.update(valsCount, annoStart, annoEnd, yLabel);
+        if (showingCount) {
+            lineChart.update(valsCount, annoStart, annoEnd, countYLabel);
+        }
+        else {
+            lineChart.update(valsPuntiOrg, annoStart, annoEnd, puntiYLabel);
+        }
+
     }
 
 
@@ -155,13 +159,13 @@ export default function MultiAnalysis({dataset, pesi}) {
                 const rowOk = 
                     (selectedAteneo == Values.VALUES_ATENEO || selectedAteneoLowerCase.includes(row[Values.FIELD_ATENEO].toLowerCase())) &&
                     ( selectedFacolta == Values.VALUES_FACOLTA ||
-                      selectedFacoltaLowerCase.includes(row[Values.FIELD_FACOLTA].toLowerCase()) ||
-                      selectedFacoltaLowerCase.includes(row[Values.FIELD_STRUTTURA].toLowerCase())
+                      (row[Values.FIELD_FACOLTA] != "" && selectedFacoltaLowerCase.includes(row[Values.FIELD_FACOLTA].toLowerCase())) ||
+                      (row[Values.FIELD_STRUTTURA] != "" && selectedFacoltaLowerCase.includes(row[Values.FIELD_STRUTTURA].toLowerCase()))
                     ) &&
-                    (selectedFascia == Values.VALUES_FASCIA || selectedFascia.includes(row[Values.FIELD_FASCIA])) &&
-                    (selectedArea == Values.VALUES_AREA || selectedSSDViaArea.includes(row[Values.FIELD_SSD])) &&
-                    (selectedSC == Values.VALUES_SC || selectedSC.includes(row[Values.FIELD_SC])) &&
-                    (selectedSSD == Values.VALUES_SSD || selectedSSD.includes(row[Values.FIELD_SSD]));
+                    (selectedFascia == Values.VALUES_FASCIA || (row[Values.FIELD_FASCIA] != "" && selectedFascia.includes(row[Values.FIELD_FASCIA]))) &&
+                    (selectedArea == Values.VALUES_AREA || (row[Values.FIELD_SSD] != "" && selectedSSDViaArea.includes(row[Values.FIELD_SSD]))) &&
+                    (selectedSC == Values.VALUES_SC || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC]))) &&
+                    (selectedSSD == Values.VALUES_SSD || (row[Values.FIELD_SSD] != "" && selectedSSD.includes(row[Values.FIELD_SSD])));
 
                 // se la riga rispetta i filtri allora aggiungo il conteggio all'ateneo corrispondente
                 if (rowOk && (row[Values.FIELD_ATENEO] != Values.FIELD_ATENEO)) {
@@ -236,21 +240,21 @@ export default function MultiAnalysis({dataset, pesi}) {
 
     function showCount() {
         if (showingCount) return;
-        lineChart.update(dataCount, annoStart, annoEnd, countYLabel);
+        lineChart.updateYValues(dataCount, countYLabel);
         setShowingCount(true);
     }
     function showPunti() {
         if (!showingCount) return;
-        lineChart.update(dataPuntiOrg, annoStart, annoEnd, puntiYLabel);
+        lineChart.updateYValues(dataPuntiOrg, puntiYLabel);
         setShowingCount(false);
     }
 
     function toggleShownData() {
         if (showingCount) {
-            lineChart.update(dataPuntiOrg, annoStart, annoEnd, puntiYLabel);
+            lineChart.updateYValues(dataPuntiOrg, puntiYLabel);
         }
         else {
-            lineChart.update(dataCount, annoStart, annoEnd, countYLabel);
+            lineChart.updateYValues(dataCount, countYLabel);
         }
         setShowingCount(!showingCount);
     }
