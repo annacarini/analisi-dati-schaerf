@@ -61,3 +61,17 @@
 .y-grid {
   color: #00000012;
 }
+
+.axis-label {
+  font-size: 9pt;
+  font-weight: bold;
+  fill: #9b3f3f;
+}
+
+.x-axis-label {
+  text-align: right;
+}
+
+.y-axis-label {
+  text-align: center;
+}

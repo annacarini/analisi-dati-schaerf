@@ -22,7 +22,7 @@ export default function MultiAnalysis({dataset, pesi}) {
 
     const refSVG = useRef();
 
-    const margin = {top: 10, right: 0, bottom: 30, left: 40};
+    const margin = {top: 15, right: 0, bottom: 30, left: 40};
     const WIDTH_PERCENTAGE = 0.8;
     const HEIGHT_PERCENTAGE = 0.6;
 
@@ -47,6 +47,8 @@ export default function MultiAnalysis({dataset, pesi}) {
 
     // Per cambiare visualizzazione
     const [showingCount, setShowingCount] = useState(true);
+    const countYLabel = "Professori";
+    const puntiYLabel = "Punti org"
 
     // Per il caricamento
     const [loadingData, setLoadingData] = useState(false);
@@ -70,7 +72,17 @@ export default function MultiAnalysis({dataset, pesi}) {
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
 
-        lchart.draw(valsCount, annoStart, annoEnd);
+        lchart.draw(valsCount, annoStart, annoEnd, countYLabel);
+
+        window.addEventListener("resize", () => {onWindowResize(lchart);});
+    }
+
+
+    function onWindowResize(chart=lineChart) {
+        console.log("resizing");
+        var width = WIDTH_PERCENTAGE*window.innerWidth - margin.left - margin.right;
+        var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
+        chart.updateSize(margin, width, height);
     }
 
 
@@ -79,9 +91,10 @@ export default function MultiAnalysis({dataset, pesi}) {
         const vals = await computeData();
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
-        lineChart.update(valsCount, annoStart, annoEnd);
+        var yLabel = countYLabel;
+        if (!showingCount) yLabel = puntiYLabel
+        lineChart.update(valsCount, annoStart, annoEnd, yLabel);
     }
-
 
 
     function updateYears(annoS, annoE) {
@@ -214,20 +227,22 @@ export default function MultiAnalysis({dataset, pesi}) {
 
 
     function showCount() {
-        lineChart.update(dataCount, annoStart, annoEnd);
+        if (showingCount) return;
+        lineChart.update(dataCount, annoStart, annoEnd, countYLabel);
         setShowingCount(true);
     }
     function showPunti() {
-        lineChart.update(dataPuntiOrg, annoStart, annoEnd);
+        if (!showingCount) return;
+        lineChart.update(dataPuntiOrg, annoStart, annoEnd, puntiYLabel);
         setShowingCount(false);
     }
 
     function toggleShownData() {
         if (showingCount) {
-            lineChart.update(dataPuntiOrg, annoStart, annoEnd);
+            lineChart.update(dataPuntiOrg, annoStart, annoEnd, puntiYLabel);
         }
         else {
-            lineChart.update(dataCount, annoStart, annoEnd);
+            lineChart.update(dataCount, annoStart, annoEnd, countYLabel);
         }
         setShowingCount(!showingCount);
     }
