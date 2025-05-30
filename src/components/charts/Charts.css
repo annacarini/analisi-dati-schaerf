@@ -17,25 +17,6 @@
 }
 
 
-.chart-legend {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    /*justify-content: space-between;*/
-    padding: 0.5vh 0.6vw;
-}
-
-.chart-legend-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-}
-
-.chart-legend-text {
-    margin-left: 6px;
-    margin-bottom: 2px;
-    font-size: 11pt;
-}
 
 
 

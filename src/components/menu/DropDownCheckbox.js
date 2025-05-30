@@ -48,7 +48,7 @@ export default function DropDownCheckbox({title, options, initialSelection, upda
     }
 
     return (
-        <div className="dropdown-check-list" tabindex="100">
+        <div className="dropdown-check-list" tabIndex="100">
         <span className="anchor" onClick={() => {setVisible(!visible);}}>{title} ({selectedOptions.length}/{options.length})</span>
         {visible && <ul className="items">
             <Checkbox option={"Select all"} checked={selectedOptions == options} onClick={toggleAll}/>

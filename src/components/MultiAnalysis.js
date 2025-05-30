@@ -23,7 +23,7 @@ export default function MultiAnalysis({dataset, pesi}) {
     const refSVG = useRef();
 
     const margin = {top: 15, right: 0, bottom: 30, left: 40};
-    const WIDTH_PERCENTAGE = 0.8;
+    const WIDTH_PERCENTAGE = 0.75;
     const HEIGHT_PERCENTAGE = 0.6;
 
     // Range di anni
@@ -251,38 +251,49 @@ export default function MultiAnalysis({dataset, pesi}) {
     return (
         <div className='page-container'>
             {/* Selezione campi */}
-            <div id="menu-row">
-                <DualRangeSlider rangeStart={Values.YEAR_START} rangeEnd={Values.YEAR_END} initialStart={annoStart} initialEnd={annoEnd} updateYears={updateYears}/>
-                <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} initialSelection={selectedAteneo} updateSelection={setSelectedAteneo}/>
-                <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} initialSelection={selectedFacolta} updateSelection={setSelectedFacolta}/>
-                <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
-                <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD}/>
-                <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia}/>
-                <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
+            {/*<span className='section-title'>Filtri</span>*/}
+            <div className='menu-row-container'>
+                <div className='section-title'>Filtri</div>
+                <div id="menu-row">
+                    <DualRangeSlider rangeStart={Values.YEAR_START} rangeEnd={Values.YEAR_END} initialStart={annoStart} initialEnd={annoEnd} updateYears={updateYears}/>
+                    <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} initialSelection={selectedAteneo} updateSelection={setSelectedAteneo}/>
+                    <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} initialSelection={selectedFacolta} updateSelection={setSelectedFacolta}/>
+                    <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia}/>
+                    <DropDownCheckbox title={"Area"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
+                    <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
+                    <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD}/>
+                    <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
+                </div>
             </div>
-            {/* Scelta asse y e visualizzazione grafico/tabella */}
-            {/*<div id="graph-choice-row">
-                <ToggleSwitch label={"Punti organico"} onChange={toggleShownData}/>
-            </div>*/}
-            <div id="graph-choice-row">
-                <div id="count-punti-selection">
-                    <div>
-                        <input type="radio" id="count" name="count" value="count" onClick={showCount} checked={showingCount}/>
-                        <label for="count">Quantità professori</label>
-                    </div>
-                    <div>
-                        <input type="radio" id="punti" name="punti" value="punti" onClick={showPunti} checked={!showingCount}/>
-                        <label for="punti">Punti organico</label>
+            {/* Parte centrale con grafico e legenda */}
+            <div className='chart-and-legend'>
+                {/* Grafico */}
+                <svg className="chart" ref={refSVG}/>
+                {/* Legenda */}
+                <div className='legend-container'>
+                    <div className='legend-title'>Legenda</div>
+                    <div className='legend'>
+                        {dataCount.data.map((ateneo, index) =>
+                            <ChartLegend key={index} text={ateneo.ateneo} color={ateneo.color}/>
+                        )}
                     </div>
                 </div>
             </div>
-            {/* Grafici */}
-            <svg className="chart" ref={refSVG}/>
-            {/* Legenda */}
-            <div className='legend'>
-                {dataCount.data.map((ateneo, index) =>
-                    <ChartLegend key={index} text={ateneo.ateneo} color={ateneo.color}/>
-                )}
+            {/* Scelta asse y e visualizzazione grafico/tabella */}
+            <div className='visualization-container'>
+                <div className='section-title'>Visualizzazione</div>
+                <div id="graph-choice-row">
+                    <div id="count-punti-selection">
+                        <div>
+                            <input type="radio" id="count" name="count" value="count" onClick={showCount} checked={showingCount}/>
+                            <label for="count">Quantità professori</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="punti" name="punti" value="punti" onClick={showPunti} checked={!showingCount}/>
+                            <label for="punti">Punti organico</label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
