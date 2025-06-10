@@ -129,6 +129,8 @@ export default class MultiLineChart {
         const maxCount = vals.max;
         const data = vals.data;
 
+        if (data.length < 1) return;
+
         //scales
         const xScale = d3.scaleLinear().range([this.margin.left, this.width - this.margin.right]);
         const yScale = d3.scaleLinear().range([this.height - this.margin.top, this.margin.bottom]);
@@ -252,7 +254,7 @@ export default class MultiLineChart {
     openTooltip(self, ateneo, color, event, d) {
         //console.log(d); 
         self.tooltip
-            .style('left', (event.pageX) + 'px')     
+            .style('left', (event.pageX - 38) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
         d3.select("#toolTipDiv-title").html(ateneo);
@@ -267,7 +269,7 @@ export default class MultiLineChart {
     openTooltipNoData(self, ateneo, color, event) {
         //console.log(d); 
         self.tooltip
-            .style('left', (event.pageX) + 'px')     
+            .style('left', (event.pageX - 38) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
         d3.select("#toolTipDiv-title").html(ateneo);

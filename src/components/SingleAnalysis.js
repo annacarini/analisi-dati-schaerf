@@ -24,14 +24,17 @@ export default function SingleAnalysis() {
     const [annoEnd, setAnnoEnd] = useState(Values.YEAR_END);
 
     // Opzioni selezionate
-    const [selectedAteneo, setSelectedAteneo] = useState('ROMA "La Sapienza"');     // NON UN ARRAY STAVOLTA
+    const [selectedAteneo, setSelectedAteneo] = useState('ROMA "La Sapienza"');     // non un array stavolta
     const [selectedFacolta, setSelectedFacolta] = useState(Values.VALUES_FACOLTA);
+    const [selectedArea, setSelectedArea] = useState(Values.VALUES_AREA);
     const [selectedSC, setSelectedSC] = useState(Values.VALUES_SC);
     const [selectedSSD, setSelectedSSD] = useState(Values.VALUES_SSD);
     const [selectedFascia, setSelectedFascia] = useState(Values.VALUES_FASCIA);
 
+
     // Per il caricamento
     const [loadingData, setLoadingData] = useState(false);
+    const [updateButtonEnabled, setUpdateButtonEnabled] = useState(false);
 
 
     function updateYears(annoS, annoE) {
@@ -52,14 +55,18 @@ export default function SingleAnalysis() {
     return (
         <div className='page-container'>
             {/* Selezione campi */}
-            <div id="menu-row">
-                <DualRangeSlider rangeStart={Values.YEAR_START} rangeEnd={Values.YEAR_END} initialStart={annoStart} initialEnd={annoEnd} updateYears={updateYears}/>
-                <DropDownRadio title={"Ateneo"} options={Values.VALUES_ATENEO} initialSelection={selectedAteneo} updateSelection={setSelectedAteneo}/>
-                <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} initialSelection={selectedFacolta} updateSelection={setSelectedFacolta}/>
-                <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC}/>
-                <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD}/>
-                <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia}/>
-                <button id="update-chart-button" onClick={updateLineChart} disabled={loadingData}>Update</button>
+            <div className='menu-row-container'>
+                <div className='section-title'>Filtri</div>
+                <div id="menu-row">
+                    <DualRangeSlider rangeStart={Values.YEAR_START} rangeEnd={Values.YEAR_END} initialStart={annoStart} initialEnd={annoEnd} updateYears={updateYears}/>
+                    <DropDownRadio title={"Ateneo"} options={Values.VALUES_ATENEO} initialSelection={selectedAteneo} updateSelection={setSelectedAteneo}/>
+                    <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} initialSelection={selectedFacolta} updateSelection={setSelectedFacolta} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
+                    <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
+                    <DropDownCheckbox title={"Aree"} options={Values.VALUES_AREA} initialSelection={selectedArea} updateSelection={setSelectedArea} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
+                    <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
+                    <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
+                    <button id="update-chart-button" onClick={updateLineChart} disabled={!updateButtonEnabled}>Update</button>
+                </div>
             </div>
         </div>
     )

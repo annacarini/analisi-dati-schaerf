@@ -19,7 +19,7 @@ export default function TableData({data, title}) {
     }
 
     return (
-        <div className="table-data-container">
+
             <table className="table-data">
                 <tr>
                     <th className='table-data-title'>{title}</th>
@@ -37,6 +37,6 @@ export default function TableData({data, title}) {
                     </tr>
                 )}
             </table>
-        </div>
+
     )
 }

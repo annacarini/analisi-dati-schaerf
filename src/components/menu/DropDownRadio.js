@@ -22,7 +22,7 @@ export default function DropDownRadio({title, options, initialSelection, updateS
 
     return (
         <div className="dropdown-check-list" tabIndex="100">
-        <span className="anchor" onClick={() => {setVisible(!visible);}}>{title}: {selectedOption.slice(0, 35)}</span>
+        <span className="anchor" onClick={() => {setVisible(!visible);}}>{title}: {selectedOption.slice(0, 25)}</span>
         {visible && <ul className="items">
             {options.map((option, index) =>
                 <RadioButton key={index} option={option} checked={selectedOption === option} onClick={selectOption}/>

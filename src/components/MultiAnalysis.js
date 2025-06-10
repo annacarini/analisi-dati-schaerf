@@ -96,6 +96,16 @@ export default function MultiAnalysis({dataset, pesi}) {
 
 
     async function updateLineChart() {
+
+        // controlla le selezioni
+        if (annoStart > annoEnd) { alert("L'intervallo di date non è valido"); return; }
+        if (selectedAteneo.length < 1) { alert("Seleziona almeno un ateneo"); return; }
+        if (selectedFacolta.length < 1) { alert("Seleziona almeno una facoltà"); return; }
+        if (selectedFascia.length < 1) { alert("Seleziona almeno una fascia"); return; }
+        if (selectedArea.length < 1) { alert("Seleziona almeno un'area"); return; }
+        if (selectedSC.length < 1) { alert("Seleziona almeno un SC"); return; }
+        if (selectedSSD.length < 1) { alert("Seleziona almeno un SSD"); return; }
+
         console.log("updating chart");
         const vals = await computeData();
         const valsCount = vals["count"];
@@ -272,7 +282,6 @@ export default function MultiAnalysis({dataset, pesi}) {
     return (
         <div className='page-container'>
             {/* Selezione campi */}
-            {/*<span className='section-title'>Filtri</span>*/}
             <div className='menu-row-container'>
                 <div className='section-title'>Filtri</div>
                 <div id="menu-row">
@@ -280,14 +289,14 @@ export default function MultiAnalysis({dataset, pesi}) {
                     <DropDownCheckbox title={"Atenei"} options={Values.VALUES_ATENEO} initialSelection={selectedAteneo} updateSelection={setSelectedAteneo} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"Facoltà"} options={Values.VALUES_FACOLTA} initialSelection={selectedFacolta} updateSelection={setSelectedFacolta} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"Fascia"} options={Values.VALUES_FASCIA} initialSelection={selectedFascia} updateSelection={setSelectedFascia} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
-                    <DropDownCheckbox title={"Area"} options={Values.VALUES_AREA} initialSelection={selectedArea} updateSelection={setSelectedArea} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
+                    <DropDownCheckbox title={"Aree"} options={Values.VALUES_AREA} initialSelection={selectedArea} updateSelection={setSelectedArea} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <button id="update-chart-button" onClick={updateLineChart} disabled={!updateButtonEnabled}>Update</button>
                 </div>
             </div>
             {/* Parte centrale con grafico/tabella e legenda */}
-            <div className='chart-and-legend'>
+            <div className='central-section'>
                 {/* Grafico */}
                 <div style={{display: showingGraph ? 'block' : 'none'}}>
                     <svg className="chart" ref={refSVG}/>
@@ -308,32 +317,36 @@ export default function MultiAnalysis({dataset, pesi}) {
                     </div>
                 </div>
                 {/* Tabella */}
-                <div style={{display: !showingGraph ? 'block' : 'none', width: '100%'}}><TableData data={showingCount? dataCount : dataPuntiOrg}
-                    title={showingCount? countYLabel : puntiYLabel}/></div>
+                <div style={{display: !showingGraph ? 'block' : 'none'}} className="table-data-container">
+                    <TableData data={showingCount? dataCount : dataPuntiOrg} title={showingCount? countYLabel : puntiYLabel}/>
+                </div>
             </div>
-            {/* Scelta asse y e visualizzazione grafico/tabella */}
+            {/* Opzioni di visualizzazione */}
             <div className='visualization-container'>
                 <div className='section-title'>Visualizzazione</div>
-                <div id="graph-choice-row">
-                    <div className="visualization-selection">
+                <div className="visualization-controls">
+                    {/* Scelta asse y (conteggio professori / punti organico) */}
+                    <div className="visualization-selection-conta-punti">
                         <div>
-                            <input type="radio" id="visualization-selection-conta" name="visualization-selection-conta-punti" value="conta" onChange={showCount} checked={showingCount}/>
-                            <label htmlFor="visualization-selection-conta">Quantità professori</label>
+                            <input type="radio" name="visualization-selection-conta-punti" id="vis-sel-conta" onChange={showCount} checked={showingCount}/>
+                            <label htmlFor="vis-sel-conta">Quantità professori</label>
                         </div>
                         <div>
-                            <input type="radio" id="visualization-selection-punti" value="punti" name="visualization-selection-conta-punti" onChange={showPunti} checked={!showingCount}/>
-                            <label htmlFor="visualization-selection-punti">Punti organico</label>
+                            <input type="radio" name="visualization-selection-conta-punti" id="vis-sel-punti" onChange={showPunti} checked={!showingCount}/>
+                            <label htmlFor="vis-sel-punti">Punti organico</label>
                         </div>
                     </div>
-                    <div className="visualization-selection">
-                        <div>
-                            <input type="radio" id="visualization-selection-grafico" name="visualization-selection-grafico-tabella" value="grafico" onChange={()=>{setShowingGraph(true);}} checked={showingGraph}/>
-                            <label htmlFor="visualization-selection-grafico">Grafico</label>
-                        </div>
-                        <div>
-                            <input type="radio" id="visualization-selection-tabella" name="visualization-selection-grafico-tabella" value="tabella" onChange={()=>{setShowingGraph(false);}} checked={!showingGraph}/>
-                            <label htmlFor="visualization-selection-tabella">Tabella</label>
-                        </div>
+                    <div className="visualization-controls-separator"/>
+                    {/* Scelta grafico o tabella */}
+                    <div className="visualization-selection-grafico-tabella">
+                        <button className="visualization-selection-button" onClick={()=>{setShowingGraph(true);}} disabled={showingGraph}>
+                            <i className="bi bi-graph-up"/>
+                            <div className="visualization-selection-button-text">Grafico</div>
+                        </button>
+                        <button className="visualization-selection-button" onClick={()=>{setShowingGraph(false);}} disabled={!showingGraph}>
+                            <i className="bi bi-table"/>
+                            <div className="visualization-selection-button-text">Tabella</div>
+                        </button>
                     </div>
                 </div>
             </div>

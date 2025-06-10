@@ -1,38 +1,4 @@
 
-.section-title {
-  font-size: 10pt;
-  font-weight: bold;
-  margin-top: 0.5vh;
-  margin-bottom: 1vh;
-  margin-left: 15px;
-}
-
-.visualization-container, .menu-row-container {
-    padding: 0.2vh 0.5vw;
-    border-radius: 15px;
-    border: 1px solid rgb(170, 170, 170);
-    text-align: left;
-    margin: 1vh 0;
-
-    height: fit-content;
-}
-
-/*
-.visualization-container {
-    height: 12vh;
-}
-.menu-row-container {
-    height: 12vh;
-}
-*/
-
-#graph-choice-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 0 1vw;
-    margin-bottom: 1vh;
-}
 
 #menu-row {
     display: flex;
@@ -57,7 +23,10 @@
   color: white;
 }
   
-  
+
+#update-chart-button:disabled {
+  background-color: #bdbdbd;
+}
   
   /* Dropdown checkbox */
 
