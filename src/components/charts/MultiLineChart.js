@@ -25,8 +25,7 @@ export default class MultiLineChart {
 
         this.tooltip = tooltip;
 
-        const closeTooltipFunc = this.closeTooltip;
-        svg.on('mouseover', function(event, d) { closeTooltipFunc(); })
+        svg.on('mouseover', this.closeTooltip.bind(this))
     }
 
 
@@ -213,15 +212,12 @@ export default class MultiLineChart {
 
         //console.log("drawing line for ateneo " + ateneo);
 
-
-        // me li devo salvare qua perche' sotto perde il riferimento a "this"
-        const closeTooltipFunc = this.closeTooltip;
-        const openTooltipFunc = this.openTooltip;
-        const openTooltipNoDataFunc = this.openTooltipNoData;
-
         // Create a update selection: bind to the new data
         var u = this.svg.selectAll(".lineTest-" + index).data([data], function(d){ return d.anno });
         var group = this.svg.append("g");  
+
+        // me lo devo salvare qua perche' nelle funzioni anonime perdo il riferimento a "this" (con bind non funziona)
+        const self = this;
 
         u.enter()
             .append("path")
@@ -231,8 +227,8 @@ export default class MultiLineChart {
             .attr("fill", "none")
             .attr("stroke", color)
             .attr("stroke-width", 2.5)
-            .on("mouseout", function(event, d) { closeTooltipFunc(); })
-            .on('mouseover', function(event, d) { openTooltipNoDataFunc(ateneo, color, event); });
+            .on("mouseout",  this.closeTooltip.bind(this))
+            .on('mouseover', function(event, d) { self.openTooltipNoData(self, ateneo, color, event);});
                 
         group
             .attr("class","myCircles")
@@ -247,15 +243,15 @@ export default class MultiLineChart {
             .attr("cx", function(d) { return xScale(d.anno) })
             .attr("cy", function(d) { return yScale(d.conta) })
             .attr("r", 3)
-            .on("mouseout", function(event, d) { closeTooltipFunc(); })
-            .on('mouseover', function(event, d) { openTooltipFunc(ateneo, color, event, d); });
+            .on("mouseout", this.closeTooltip.bind(this))
+            .on('mouseover', function(event, d) { self.openTooltip(self, ateneo, color, event, d);})
     }
 
 
     
-    openTooltip(ateneo, color, event, d) {
+    openTooltip(self, ateneo, color, event, d) {
         //console.log(d); 
-        this.tooltip
+        self.tooltip
             .style('left', (event.pageX) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
@@ -263,14 +259,14 @@ export default class MultiLineChart {
         d3.select("#toolTipDiv-line").style("background-color", color);
         d3.select("#toolTipDiv-content").html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>');
 
-        this.tooltip.transition()        
+        self.tooltip.transition()        
             .duration(200)      
             .style('opacity', 1);     
     }
         
-    openTooltipNoData(ateneo, color, event) {
+    openTooltipNoData(self, ateneo, color, event) {
         //console.log(d); 
-        this.tooltip
+        self.tooltip
             .style('left', (event.pageX) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
@@ -278,14 +274,14 @@ export default class MultiLineChart {
         d3.select("#toolTipDiv-line").style("background-color", color);
         d3.select("#toolTipDiv-content").html('');
 
-        this.tooltip.transition()        
+        self.tooltip.transition()        
             .duration(200)      
             .style('opacity', 1);     
     }
 
-    closeTooltip(tooltip) {
+    closeTooltip() {
         //console.log("closing tooltip");
-        tooltip.style('opacity', 0);
+        this.tooltip.style('opacity', 0);
     }
     
 
