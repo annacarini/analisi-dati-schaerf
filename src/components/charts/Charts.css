@@ -4,6 +4,8 @@
     border-radius: 15px;
     font-size: 12pt;
     padding: 1vh 1vw;
+    opacity: 0;
+    position: absolute;
 } 
 
 #toolTipDiv-title {

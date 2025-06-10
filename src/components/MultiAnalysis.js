@@ -22,6 +22,7 @@ import '../App.css';
 export default function MultiAnalysis({dataset, pesi}) {
 
     const refSVG = useRef();
+    const refTooltip = useRef();
 
     const margin = {top: 15, right: 0, bottom: 30, left: 40};
     const WIDTH_PERCENTAGE = 0.75;
@@ -68,11 +69,12 @@ export default function MultiAnalysis({dataset, pesi}) {
     
     async function initializeLineChart() {
         const svg = d3.select(refSVG.current);
+        const tooltip = d3.select(refTooltip.current);
         var width = WIDTH_PERCENTAGE*window.innerWidth - margin.left - margin.right;
         var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
 
         // Crea chart
-        const lchart = new MultiLineChart(svg, margin, width, height);
+        const lchart = new MultiLineChart(svg, tooltip, margin, width, height);
         setLineChart(lchart);
 
         const vals = await computeData();
@@ -287,11 +289,17 @@ export default function MultiAnalysis({dataset, pesi}) {
             {/* Parte centrale con grafico/tabella e legenda */}
             <div className='chart-and-legend'>
                 {/* Grafico */}
-                <div style={{display: showingGraph ? 'block' : 'none'}}><svg className="chart" ref={refSVG}/></div>
-                {/* Tabella */}
-                <div style={{display: !showingGraph ? 'block' : 'none'}}><TableData data={dataCount} yearStart={annoStart} yearEnd={annoEnd}/></div>
+                <div style={{display: showingGraph ? 'block' : 'none'}}>
+                    <svg className="chart" ref={refSVG}/>
+                    {/* Tooltip */}
+                    <div id="toolTipDiv" className='tooltip' ref={refTooltip}>
+                        <div id="toolTipDiv-title"></div>
+                        <hr id="toolTipDiv-line"/>
+                        <div id="toolTipDiv-content"></div>
+                    </div>
+                </div>
                 {/* Legenda */}
-                <div className='legend-container'>
+                <div style={{display: showingGraph ? 'block' : 'none'}} className='legend-container'>
                     <div className='legend-title'>Legenda</div>
                     <div className='legend'>
                         {dataCount.data.map((ateneo, index) =>
@@ -299,6 +307,9 @@ export default function MultiAnalysis({dataset, pesi}) {
                         )}
                     </div>
                 </div>
+                {/* Tabella */}
+                <div style={{display: !showingGraph ? 'block' : 'none', width: '100%'}}><TableData data={showingCount? dataCount : dataPuntiOrg}
+                    title={showingCount? countYLabel : puntiYLabel}/></div>
             </div>
             {/* Scelta asse y e visualizzazione grafico/tabella */}
             <div className='visualization-container'>
@@ -314,7 +325,6 @@ export default function MultiAnalysis({dataset, pesi}) {
                             <label htmlFor="visualization-selection-punti">Punti organico</label>
                         </div>
                     </div>
-                    <vl/>
                     <div className="visualization-selection">
                         <div>
                             <input type="radio" id="visualization-selection-grafico" name="visualization-selection-grafico-tabella" value="grafico" onChange={()=>{setShowingGraph(true);}} checked={showingGraph}/>

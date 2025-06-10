@@ -16,14 +16,13 @@ export default function DropDownCheckbox({title, options, initialSelection, upda
             console.log("de selecting all");
             setSelectedOptions([]);
             updateSelection([]);
-            enableUpdateButton();
         }
         else {
             console.log("selecting all");
             setSelectedOptions(options);
             updateSelection(options);
-            enableUpdateButton();
         }
+        enableUpdateButton();
     }
 
     function toggleOption(option) {
@@ -47,6 +46,7 @@ export default function DropDownCheckbox({title, options, initialSelection, upda
         //console.log(newSelectedOptions);
         setSelectedOptions(newSelectedOptions);
         updateSelection(newSelectedOptions);
+        enableUpdateButton();
     }
 
     return (
