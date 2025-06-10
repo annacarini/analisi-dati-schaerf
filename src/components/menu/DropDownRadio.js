@@ -5,7 +5,7 @@ import Checkbox from './Checkbox';
 
 import './Menu.css';
 
-export default function DropDownRadio({title, options, initialSelection, updateSelection}) {
+export default function DropDownRadio({title, options, initialSelection, updateSelection, enableUpdateButton}) {
 
     
     const [visible, setVisible] = useState(false);
@@ -17,6 +17,7 @@ export default function DropDownRadio({title, options, initialSelection, updateS
         //console.log(option);
         setSelectedOption(option);
         updateSelection(option);
+        enableUpdateButton();
     }
 
 

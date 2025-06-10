@@ -1,7 +1,6 @@
 import * as d3 from "d3";
 
 import ColorUtilities from "../../utils/ColorUtilities";
-import Colors from "../../utils/Colors";
 
 import "./Charts.css";
 

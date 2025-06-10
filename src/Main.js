@@ -112,7 +112,8 @@ export default function Main() {
                 <div style={{display: multiSelected ? 'block' : 'none'}}><MultiAnalysis dataset={dataset} pesi={pesi}/></div>
                 <div style={{display: !multiSelected ? 'block' : 'none'}}><SingleAnalysis/></div>
             </div>
-            : <div>
+            : <div className="loader-container">
+                <div className="loader"></div> 
                 Loading dataset...
               </div>
             }

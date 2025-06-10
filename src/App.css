@@ -72,6 +72,40 @@ input[type='radio'], input[type='checkbox'] {
 }
 
 
+/* Spinner caricamento */
+
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  font-size: 14pt;
+  font-weight: lighter;
+  color: rgb(160, 160, 160);
+}
+
+.loader {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid rgb(29, 83, 163);
+  border-radius: 50%;
+  width: 4vw;
+  height: 4vw;
+  animation: spin 2s linear infinite;
+  margin-bottom: 1vh;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* Riga selezione analisi singola/multipla */
+
+
 .analysis-type-row {
   display: flex;
   flex-direction: row;
