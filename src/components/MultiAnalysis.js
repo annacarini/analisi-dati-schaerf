@@ -74,7 +74,7 @@ export default function MultiAnalysis({dataset, pesi}) {
         var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
 
         // Crea chart
-        const lchart = new MultiLineChart(svg, tooltip, margin, width, height);
+        const lchart = new MultiLineChart(svg, tooltip, margin, width, height, 1);
         setLineChart(lchart);
 
         const vals = await computeData();
@@ -268,15 +268,7 @@ export default function MultiAnalysis({dataset, pesi}) {
         setShowingCount(false);
     }
 
-    function toggleShownData() {
-        if (showingCount) {
-            lineChart.updateYValues(dataPuntiOrg, puntiYLabel);
-        }
-        else {
-            lineChart.updateYValues(dataCount, countYLabel);
-        }
-        setShowingCount(!showingCount);
-    }
+
 
 
     return (
@@ -301,10 +293,10 @@ export default function MultiAnalysis({dataset, pesi}) {
                 <div style={{display: showingGraph ? 'block' : 'none'}}>
                     <svg className="chart" ref={refSVG}/>
                     {/* Tooltip */}
-                    <div id="toolTipDiv" className='tooltip' ref={refTooltip}>
-                        <div id="toolTipDiv-title"></div>
-                        <hr id="toolTipDiv-line"/>
-                        <div id="toolTipDiv-content"></div>
+                    <div id="toolTipDiv1" className='tooltip' ref={refTooltip}>
+                        <div id="toolTipDiv-title1" className='tooltip-title'></div>
+                        <hr id="toolTipDiv-line1" className='tooltip-line'/>
+                        <div id="toolTipDiv-content1" className='tooltip-content'></div>
                     </div>
                 </div>
                 {/* Legenda */}
@@ -328,11 +320,11 @@ export default function MultiAnalysis({dataset, pesi}) {
                     {/* Scelta asse y (conteggio professori / punti organico) */}
                     <div className="visualization-selection-conta-punti">
                         <div>
-                            <input type="radio" name="visualization-selection-conta-punti" id="vis-sel-conta" onChange={showCount} checked={showingCount}/>
+                            <input type="radio" name="visualization-selection-conta-punti" id="vis-sel-conta" onClick={showCount} checked={showingCount}/>
                             <label htmlFor="vis-sel-conta">Quantità professori</label>
                         </div>
                         <div>
-                            <input type="radio" name="visualization-selection-conta-punti" id="vis-sel-punti" onChange={showPunti} checked={!showingCount}/>
+                            <input type="radio" name="visualization-selection-conta-punti" id="vis-sel-punti" onClick={showPunti} checked={!showingCount}/>
                             <label htmlFor="vis-sel-punti">Punti organico</label>
                         </div>
                     </div>

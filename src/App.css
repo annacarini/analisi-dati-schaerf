@@ -158,6 +158,14 @@ input[type='radio'], input[type='checkbox'] {
 }
 
 
+/* Titolo analisi singola */
+
+.analysis-title {
+  font-size: 11pt;
+  text-align: left;
+}
+
+
 /* LEGENDA */
 
 .legend-container {

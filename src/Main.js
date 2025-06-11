@@ -5,7 +5,6 @@ import * as d3 from "d3";
 import MultiAnalysis from './components/MultiAnalysis';
 import SingleAnalysis from './components/SingleAnalysis';
 
-import Values from './DB/Values';
 
 // import file pesi
 import file_pesi from './DB/Pesi.csv';
@@ -110,7 +109,7 @@ export default function Main() {
             {(datasetReady && pesiReady)
             ? <div>
                 <div style={{display: multiSelected ? 'block' : 'none'}}><MultiAnalysis dataset={dataset} pesi={pesi}/></div>
-                <div style={{display: !multiSelected ? 'block' : 'none'}}><SingleAnalysis/></div>
+                <div style={{display: !multiSelected ? 'block' : 'none'}}><SingleAnalysis dataset={dataset} pesi={pesi}/></div>
             </div>
             : <div className="loader-container">
                 <div className="loader"></div> 

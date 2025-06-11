@@ -9,11 +9,12 @@ export default class MultiLineChart {
     animationDuration = 2000;
 
 
-    constructor(svg, tooltip, margin, width, height) {
+    constructor(svg, tooltip, margin, width, height, index) {
         this.svg = svg;
         this.margin = margin;
         this.width = width;
         this.height = height;
+        this.index = index;
 
         this.data = [];
         this.xStart = 0;
@@ -37,8 +38,8 @@ export default class MultiLineChart {
         this.svg.attr("width",this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom);
 
-        // aggiorna posiz asse x
-        this.svg.select("#x-axis").attr("transform", `translate(0,${this.height})`);
+        // aggiorna posiz asse x     
+        this.svg.select(`#x-axis${this.index}`).attr("transform", `translate(0,${this.height})`);
 
         // aggiorna grafico
         this.update(this.data, this.xStart, this.xEnd, this.yLabel, this.xLabel, this.withAnimation);
@@ -83,7 +84,8 @@ export default class MultiLineChart {
         // Prendi elemento svg
         this.svg.attr("width",this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom)
-            .attr("id", "line-chart");             // assegno un id per i css
+            .attr("id", `line-chart${this.index}`)             // assegno un id per i css
+            .classed("line-chart", true);
 
 
         //scales
@@ -91,18 +93,20 @@ export default class MultiLineChart {
         const yScale = d3.scaleLinear().range([this.height - this.margin.top, this.margin.bottom]);
     
         //axes
-        d3.select("#x-axis").remove();
+        d3.select(`#x-axis${this.index}`).remove();
         const xAxis = d3.axisBottom(xScale).ticks(countPerAnno.length);
         this.svg.append("g")
             .attr("transform", `translate(0,${this.height})`)
-            .attr("id", "x-axis")             // assegno un id per i css
+            .attr("id", `x-axis${this.index}`)             // assegno un id per i css
+            .classed("x-axis", true)
             .call(xAxis);
 
-        d3.select("#y-axis").remove();
+        d3.select(`#y-axis${this.index}`).remove();
         const yAxis = d3.axisLeft(yScale).ticks(10);
         this.svg.append("g")
             .attr("transform", `translate(${this.margin.left},0)`)
-            .attr("id", "y-axis")             // assegno un id per i css
+            .attr("id", `y-axis${this.index}`)             // assegno un id per i css
+            .classed("y-axis", true)
             .call(yAxis);
         
 
@@ -145,34 +149,35 @@ export default class MultiLineChart {
 
         // Update the X axis:
         xScale.domain([xStart, xEnd]);
-        this.svg.select("#x-axis").call(xAxis);
+        this.svg.select(`#x-axis${this.index}`).call(xAxis);
 
         // Update the Y axis
         yScale.domain([0, 1.1*maxCount]);
-        this.svg.select("#y-axis").call(yAxis);
+        this.svg.select(`#y-axis${this.index}`).call(yAxis);
         
         // Grid
-        this.svg.select("#y-grid").remove();
+        this.svg.select(`#y-grid${this.index}`).remove();
         const yGrid = d3.axisLeft()
             .scale(yScale)
             .tickFormat('')
             .ticks(10)
             .tickSizeInner(-this.width + this.margin.left + this.margin.right);
         this.svg.append('g')
-            .attr('id', 'y-grid')
+            .attr('id', `y-grid${this.index}`)
+            .classed("y-grid", true)
             .attr('transform', `translate(${this.margin.left}, 0)`)
             .call(yGrid).call(g => g.select(".domain").remove());
 
         
         // rimuovi label
-        this.svg.select("#x-axis-label").remove();
-        this.svg.select("#y-axis-label").remove();
+        this.svg.select(`#x-axis-label${this.index}`).remove();
+        this.svg.select(`#y-axis-label${this.index}`).remove();
 
 
         // Add X axis label:
         this.svg.append("text")
             .attr("text-anchor", "end")
-            .attr("id", "x-axis-label")
+            .attr("id", `x-axis-label${this.index}`)
             .classed("axis-label x-axis-label", true)
             .attr("x", this.width + this.margin.left - 20)
             .attr("y", this.height + this.margin.top + 20)
@@ -181,7 +186,7 @@ export default class MultiLineChart {
         // Y axis label:
         this.svg.append("text")
             .attr("text-anchor", "end")
-            .attr("id", "y-axis-label")
+            .attr("id", `y-axis-label${this.index}`)
             .classed("axis-label y-axis-label", true)
             .attr("x", this.margin.left + 25)
             .attr("y", this.margin.top + 5)
@@ -256,9 +261,9 @@ export default class MultiLineChart {
             .style('left', (event.pageX - 38) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
-        d3.select("#toolTipDiv-title").html(ateneo);
-        d3.select("#toolTipDiv-line").style("background-color", color);
-        d3.select("#toolTipDiv-content").html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>');
+        d3.select(`#toolTipDiv-title${self.index}`).html(ateneo);
+        d3.select(`#toolTipDiv-line${self.index}`).style("background-color", color);
+        d3.select(`#toolTipDiv-content${self.index}`).html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>');
 
         self.tooltip.transition()        
             .duration(200)      
@@ -271,9 +276,9 @@ export default class MultiLineChart {
             .style('left', (event.pageX - 38) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
-        d3.select("#toolTipDiv-title").html(ateneo);
-        d3.select("#toolTipDiv-line").style("background-color", color);
-        d3.select("#toolTipDiv-content").html('');
+        d3.select(`#toolTipDiv-title${self.index}`).html(ateneo);
+        d3.select(`#toolTipDiv-line${self.index}`).style("background-color", color);
+        d3.select(`#toolTipDiv-content${self.index}`).html('');
 
         self.tooltip.transition()        
             .duration(200)      

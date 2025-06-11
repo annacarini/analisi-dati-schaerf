@@ -8,11 +8,11 @@
     position: absolute;
 } 
 
-#toolTipDiv-title {
+.tooltip-title {
     font-weight: bold;
 }
 
-#toolTipDiv-line {
+.tooltip-line {
     border: none;
     margin: 1px 0;
     height: 2px;
@@ -25,7 +25,7 @@
 
 /* Stile chart */
 
-#line-chart {
+.line-chart {
   background-color: rgb(245, 245, 245);
   padding: 0 0;
   border-radius: 15px;
@@ -37,13 +37,13 @@
   stroke-width: 3;
 }
 
-#x-axis .domain, #y-axis .domain  {
+.x-axis .domain, .y-axis .domain  {
   stroke: #c56474;
   stroke-width: 3;
   opacity: 1;
 }
 
-#y-grid {
+.y-grid {
   color: #00000012;
 }
 
