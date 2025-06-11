@@ -1,24 +1,24 @@
 {
   "files": {
-    "main.css": "/analisi-dati-schaerf/static/css/main.4331ea3e.css",
-    "main.js": "/analisi-dati-schaerf/static/js/main.2b255ece.js",
+    "main.css": "/analisi-dati-schaerf/static/css/main.f35439f9.css",
+    "main.js": "/analisi-dati-schaerf/static/js/main.7c288d7e.js",
     "static/js/453.96030e14.chunk.js": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js",
     "static/media/completo_2008.csv": "/analisi-dati-schaerf/static/media/completo_2008.71a1b16cd8fa0bdabb24.csv",
     "static/media/completo_2007.csv": "/analisi-dati-schaerf/static/media/completo_2007.9b9eac4306b5dc45e585.csv",
     "static/media/completo_2006.csv": "/analisi-dati-schaerf/static/media/completo_2006.0b64ff552096a1825b58.csv",
     "static/media/completo_2023.csv": "/analisi-dati-schaerf/static/media/completo_2023.0fd69c1c4d0154feb70e.csv",
+    "static/media/completo_2009.csv": "/analisi-dati-schaerf/static/media/completo_2009.dc41ac97187d4d1589d5.csv",
     "static/media/completo_2005.csv": "/analisi-dati-schaerf/static/media/completo_2005.232d99de3c0de48cacf7.csv",
     "static/media/completo_2011.csv": "/analisi-dati-schaerf/static/media/completo_2011.05dd3233460e5d550503.csv",
-    "static/media/completo_2009.csv": "/analisi-dati-schaerf/static/media/completo_2009.4766690777101806a8fe.csv",
     "static/media/completo_2022.csv": "/analisi-dati-schaerf/static/media/completo_2022.9eb7f19caf5c5a79444d.csv",
     "static/media/completo_2002.csv": "/analisi-dati-schaerf/static/media/completo_2002.f2ab694f4a95a88321ee.csv",
     "static/media/completo_2004.csv": "/analisi-dati-schaerf/static/media/completo_2004.8bf1c9c90db14e5f3b11.csv",
+    "static/media/completo_2010.csv": "/analisi-dati-schaerf/static/media/completo_2010.d1db828960d1ebd78201.csv",
     "static/media/completo_2003.csv": "/analisi-dati-schaerf/static/media/completo_2003.93c4a5f1a3434874c977.csv",
     "static/media/completo_2021.csv": "/analisi-dati-schaerf/static/media/completo_2021.efa365269635cc5f6ebc.csv",
     "static/media/completo_2012.csv": "/analisi-dati-schaerf/static/media/completo_2012.39dbb3d7e8f5e5c4d327.csv",
     "static/media/completo_2001.csv": "/analisi-dati-schaerf/static/media/completo_2001.7d071c88a9fa7d70bccf.csv",
     "static/media/completo_2020.csv": "/analisi-dati-schaerf/static/media/completo_2020.2060b066978b233027d3.csv",
-    "static/media/completo_2010.csv": "/analisi-dati-schaerf/static/media/completo_2010.854148f227dbb54353cc.csv",
     "static/media/completo_2019.csv": "/analisi-dati-schaerf/static/media/completo_2019.03d536aab0a0ce6bb8c8.csv",
     "static/media/completo_2013.csv": "/analisi-dati-schaerf/static/media/completo_2013.d59f5b6e77befd772198.csv",
     "static/media/completo_2014.csv": "/analisi-dati-schaerf/static/media/completo_2014.607b790d818047520c9c.csv",
@@ -28,14 +28,16 @@
     "static/media/completo_2017.csv": "/analisi-dati-schaerf/static/media/completo_2017.90e087449a75f9f348d3.csv",
     "static/media/completo_2000.csv": "/analisi-dati-schaerf/static/media/completo_2000.e5a81075cbf81c73a417.csv",
     "static/media/completo_2024.csv": "/analisi-dati-schaerf/static/media/completo_2024.958f70e54acb3f3a5892.csv",
+    "static/media/bootstrap-icons.woff?": "/analisi-dati-schaerf/static/media/bootstrap-icons.ff25a7ff93ea67f144c5.woff",
+    "static/media/bootstrap-icons.woff2?": "/analisi-dati-schaerf/static/media/bootstrap-icons.ca961065e092080ca3f5.woff2",
     "index.html": "/analisi-dati-schaerf/index.html",
     "static/media/Pesi.csv": "/analisi-dati-schaerf/static/media/Pesi.c3962237921af9fc1323.csv",
-    "main.4331ea3e.css.map": "/analisi-dati-schaerf/static/css/main.4331ea3e.css.map",
-    "main.2b255ece.js.map": "/analisi-dati-schaerf/static/js/main.2b255ece.js.map",
+    "main.f35439f9.css.map": "/analisi-dati-schaerf/static/css/main.f35439f9.css.map",
+    "main.7c288d7e.js.map": "/analisi-dati-schaerf/static/js/main.7c288d7e.js.map",
     "453.96030e14.chunk.js.map": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.4331ea3e.css",
-    "static/js/main.2b255ece.js"
+    "static/css/main.f35439f9.css",
+    "static/js/main.7c288d7e.js"
   ]
 }
