@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/analisi-dati-schaerf/static/css/main.f35439f9.css",
-    "main.js": "/analisi-dati-schaerf/static/js/main.7c288d7e.js",
+    "main.css": "/analisi-dati-schaerf/static/css/main.c410c288.css",
+    "main.js": "/analisi-dati-schaerf/static/js/main.4834ef6c.js",
     "static/js/453.96030e14.chunk.js": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js",
     "static/media/completo_2008.csv": "/analisi-dati-schaerf/static/media/completo_2008.71a1b16cd8fa0bdabb24.csv",
     "static/media/completo_2007.csv": "/analisi-dati-schaerf/static/media/completo_2007.9b9eac4306b5dc45e585.csv",
@@ -31,13 +31,13 @@
     "static/media/bootstrap-icons.woff?": "/analisi-dati-schaerf/static/media/bootstrap-icons.ff25a7ff93ea67f144c5.woff",
     "static/media/bootstrap-icons.woff2?": "/analisi-dati-schaerf/static/media/bootstrap-icons.ca961065e092080ca3f5.woff2",
     "index.html": "/analisi-dati-schaerf/index.html",
-    "static/media/Pesi.csv": "/analisi-dati-schaerf/static/media/Pesi.c3962237921af9fc1323.csv",
-    "main.f35439f9.css.map": "/analisi-dati-schaerf/static/css/main.f35439f9.css.map",
-    "main.7c288d7e.js.map": "/analisi-dati-schaerf/static/js/main.7c288d7e.js.map",
+    "static/media/Pesi.csv": "/analisi-dati-schaerf/static/media/Pesi.6085ed1fa46e87889558.csv",
+    "main.c410c288.css.map": "/analisi-dati-schaerf/static/css/main.c410c288.css.map",
+    "main.4834ef6c.js.map": "/analisi-dati-schaerf/static/js/main.4834ef6c.js.map",
     "453.96030e14.chunk.js.map": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f35439f9.css",
-    "static/js/main.7c288d7e.js"
+    "static/css/main.c410c288.css",
+    "static/js/main.4834ef6c.js"
   ]
 }
