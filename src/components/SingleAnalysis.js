@@ -218,7 +218,7 @@ export default function SingleAnalysis({dataset, pesi}) {
                     var currentField = "";
                     if (_selectedFieldName == Values.FIELD_AREA && row[Values.FIELD_SSD] != "") {
                         currentField = getAreaBySSD(row[Values.FIELD_SSD]);
-                        if (currentField != "") {
+                        if (currentField in totalCount) {
                             totalCount[currentField][anno] += 1;
                             let peso = 0;
                             if (row[Values.FIELD_FASCIA] in pesi) {
@@ -227,7 +227,7 @@ export default function SingleAnalysis({dataset, pesi}) {
                             totalPuntiOrg[currentField][anno] += peso;
                         }
                     }
-                    else if (_selectedFieldName != Values.FIELD_AREA && row[_selectedFieldName] != "") {
+                    else if (_selectedFieldName != Values.FIELD_AREA && row[_selectedFieldName] in totalCount && row[_selectedFieldName] in totalPuntiOrg) {
                         totalCount[row[_selectedFieldName]][anno] += 1;
                         let peso = 0;
                         if (row[Values.FIELD_FASCIA] in pesi) {
