@@ -67,8 +67,10 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
     return (
         <div className="range_container">
             <div className="sliders_control">
-                <input className="fromSlider" type="range" ref={fromSliderRef} onInput={() => {handleFromChange(fromSliderRef.current)}} value={from} min={rangeStart} max={rangeEnd}/>
-                <input className="toSlider" type="range" ref={toSliderRef} onInput={() => {handleToChange(toSliderRef.current)}} value={to} min={rangeStart} max={rangeEnd}/>
+                <input className={"fromSlider slider-on-top-" + (from >= rangeEnd)} type="range" ref={fromSliderRef} onInput={() => {handleFromChange(fromSliderRef.current)}}
+                    value={from} min={rangeStart} max={rangeEnd}/>
+                <input className={"toSlider slider-on-top-" + (to <= rangeStart)} type="range" ref={toSliderRef} onInput={() => {handleToChange(toSliderRef.current)}}
+                    value={to} min={rangeStart} max={rangeEnd}/>
             </div>
             <div className="form_control">
                 <div className="form_control_container">
@@ -78,7 +80,6 @@ export default function DualRangeSlider({rangeStart, rangeEnd, initialStart, ini
                     <input className="form_control_container__time__input toInput" type="number" ref={toInputRef} onInput={() => {handleToChange(toInputRef.current)}} value={to} min={rangeStart} max={rangeEnd}/>
                 </div>
             </div>
-            {/*<button onClick={() => {console.log("from " + from + " to " + to);}}>print</button>*/}
         </div>
     );
 }

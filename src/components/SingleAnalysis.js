@@ -336,10 +336,9 @@ export default function SingleAnalysis({dataset, pesi}) {
                     <DropDownCheckbox title={"Aree"} options={Values.VALUES_AREA} initialSelection={selectedArea} updateSelection={setSelectedArea} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
-                    <button id="update-chart-button" onClick={() => {updateLineChart(selectedFieldName);}} disabled={!updateButtonEnabled}>Update</button>
+                    <button id="update-chart-button" onClick={() => {updateLineChart(selectedFieldName);}} disabled={!updateButtonEnabled}>{!loadingData ? "Update" : "Loading"}</button>
                 </div>
             </div>
-            <div className='analysis-title'>Analisi ateneo {selectedAteneo}, confronto per {selectedFieldName}</div>
             {/* Parte centrale con grafico/tabella e legenda */}
             <div className='central-section'>
                 {/* Grafico */}
@@ -412,6 +411,8 @@ export default function SingleAnalysis({dataset, pesi}) {
                             <div className="visualization-selection-button-text">Tabella</div>
                         </button>
                     </div>
+                    <div className="visualization-controls-separator"/>
+                    <div className='analysis-title'>Analisi ateneo {selectedAteneo}, confronto per {selectedFieldName}</div>
                 </div>
             </div>
         </div>

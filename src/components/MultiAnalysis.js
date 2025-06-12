@@ -140,6 +140,8 @@ export default function MultiAnalysis({dataset, pesi}) {
         let startTime = performance.now();
 
         setLoadingData(true);
+
+        // await new Promise(r => setTimeout(r, 2000)); // per testare se e' asincrona
     
         var totalCount = {};
         var totalPuntiOrg = {};
@@ -284,7 +286,7 @@ export default function MultiAnalysis({dataset, pesi}) {
                     <DropDownCheckbox title={"Aree"} options={Values.VALUES_AREA} initialSelection={selectedArea} updateSelection={setSelectedArea} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"SC"} options={Values.VALUES_SC} initialSelection={selectedSC} updateSelection={setSelectedSC} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
                     <DropDownCheckbox title={"SSD"} options={Values.VALUES_SSD} initialSelection={selectedSSD} updateSelection={setSelectedSSD} enableUpdateButton={()=>{setUpdateButtonEnabled(true);}}/>
-                    <button id="update-chart-button" onClick={updateLineChart} disabled={!updateButtonEnabled}>Update</button>
+                    <button id="update-chart-button" onClick={updateLineChart} disabled={!updateButtonEnabled}>{!loadingData ? "Update" : "Loading"}</button>
                 </div>
             </div>
             {/* Parte centrale con grafico/tabella e legenda */}
