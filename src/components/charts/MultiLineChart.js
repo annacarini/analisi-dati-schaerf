@@ -144,7 +144,11 @@ export default class MultiLineChart {
             .tickFormat(function (d) {
                 return d;
             });
-        const yAxis = d3.axisLeft(yScale).ticks(10);
+        const yAxis = d3.axisLeft(yScale)
+            .ticks(10)
+            .tickFormat(function (d) {
+                return d;
+            });
 
 
         // Update the X axis:

@@ -88,7 +88,7 @@ export default function MultiAnalysis({dataset, pesi}) {
 
 
     function onWindowResize(chart=lineChart) {
-        console.log("resizing");
+        //console.log("resizing");
         var width = WIDTH_PERCENTAGE*window.innerWidth - margin.left - margin.right;
         var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
         chart.updateSize(margin, width, height);
@@ -235,8 +235,7 @@ export default function MultiAnalysis({dataset, pesi}) {
 
 
         let endTime = performance.now();
-        console.log(endTime - startTime); //in ms 
-        console.log("finito compute data");
+        console.log("finito compute data, durata: " + (endTime - startTime));
         
         const count = new ChartDataAtenei(maxCount, totalCountNewFormat);
         const punti = new ChartDataAtenei(maxPuntiOrg, totalPuntiOrgNewFormat)

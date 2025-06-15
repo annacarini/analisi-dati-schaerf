@@ -89,7 +89,7 @@ export default function SingleAnalysis({dataset, pesi}) {
 
     
     function onWindowResize(chart=lineChart) {
-        console.log("resizing");
+        //console.log("resizing");
         var width = WIDTH_PERCENTAGE*window.innerWidth - margin.left - margin.right;
         var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
         chart.updateSize(margin, width, height);
@@ -157,10 +157,11 @@ export default function SingleAnalysis({dataset, pesi}) {
         var totalCount = {};
         var totalPuntiOrg = {};
 
-        console.log("getting field of field name: " + _selectedFieldName);
         const _selectedField = getFieldByFieldName(_selectedFieldName);
+        /*
         console.log("selected field:");
         console.log(_selectedField);
+        */
 
         // inizializzo la struttura dati
         for (const campo of _selectedField) {
@@ -201,9 +202,11 @@ export default function SingleAnalysis({dataset, pesi}) {
                     (selectedSC.length == Values.VALUES_SC.length || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC]))) &&
                     (selectedSSD.length == Values.VALUES_SSD.length || (row[Values.FIELD_SSD] != "" && selectedSSD.includes(row[Values.FIELD_SSD])));
 
+                /*
                 if (selectedAteneoLowerCase == row[Values.FIELD_ATENEO].toLowerCase() && !rowOk) {
                     console.log("row not ok, area: " + row[Values.FIELD_AREA].toLowerCase() + ", anno: " + anno);
                 }
+                */
                 
                 // se la riga rispetta i filtri allora aggiungo il conteggio al campo corrispondente
                 if (rowOk) {
@@ -215,9 +218,11 @@ export default function SingleAnalysis({dataset, pesi}) {
                         }
                         totalPuntiOrg[row[_selectedFieldName].toLowerCase()][anno] += peso;
                     }
+                    /*
                     else {
                         console.log("errore campo " + row[_selectedFieldName].toLowerCase() + " anno " + anno);
                     }
+                    */
                 }
             }
 
@@ -262,8 +267,7 @@ export default function SingleAnalysis({dataset, pesi}) {
 
 
         let endTime = performance.now();
-        console.log(endTime - startTime); //in ms 
-        console.log("finito compute data single analysis");
+        console.log("finito compute data single analysis, durata: " + (endTime - startTime));
         
         const count = new ChartDataAtenei(maxCount, totalCountNewFormat);
         const punti = new ChartDataAtenei(maxPuntiOrg, totalPuntiOrgNewFormat)

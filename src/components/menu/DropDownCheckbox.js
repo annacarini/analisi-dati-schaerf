@@ -13,12 +13,12 @@ export default function DropDownCheckbox({title, options, initialSelection, upda
 
     function toggleAll() {
         if (selectedOptions == options) {
-            console.log("de selecting all");
+            //console.log("de selecting all");
             setSelectedOptions([]);
             updateSelection([]);
         }
         else {
-            console.log("selecting all");
+            //console.log("selecting all");
             setSelectedOptions(options);
             updateSelection(options);
         }
@@ -26,21 +26,18 @@ export default function DropDownCheckbox({title, options, initialSelection, upda
     }
 
     function toggleOption(option) {
-        //console.log("selected options prima di toggle:");
-        //console.log(selectedOptions);
         const index = selectedOptions.indexOf(option);
-        //console.log(index);
 
         var newSelectedOptions = [];
 
         // se c'e'
         if (index > -1) {
-            console.log("removing option " + option);
+            //console.log("removing option " + option);
             newSelectedOptions = [...selectedOptions.slice(0, index), ...selectedOptions.slice(index + 1)];
         }
         // se non c'e'
         else {
-            console.log("adding option " + option);
+            //console.log("adding option " + option);
             newSelectedOptions = [...selectedOptions, option];
         }
         //console.log(newSelectedOptions);
