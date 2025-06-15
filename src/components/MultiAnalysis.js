@@ -164,29 +164,25 @@ export default function MultiAnalysis({dataset, pesi}) {
             // metto le selezioni in lowercase
             const selectedAteneoLowerCase = selectedAteneo.map((str) => str.toLowerCase());
             const selectedFacoltaLowerCase = selectedFacolta.map((str) => str.toLowerCase());
+            const selectedAreaLowerCase = selectedArea.map((str) => str.toLowerCase());
 
             // prendo il file di quell'anno
             const data = dataset[getAnnoDatasetIndex(anno)];
 
-            // prendo gli ssd selezionati tramite area
-            var selectedSSDViaArea = [];
-            for (const area of selectedArea) {
-                selectedSSDViaArea += Values.VALUES_SSD_PER_AREA[area];
-            }
 
             // itero sulle righe del file
             for (const row of data) {
                 // applico i filtri
                 const rowOk = 
-                    (selectedAteneo == Values.VALUES_ATENEO || selectedAteneoLowerCase.includes(row[Values.FIELD_ATENEO].toLowerCase())) &&
-                    ( selectedFacolta == Values.VALUES_FACOLTA ||
+                    (selectedAteneo.length == Values.VALUES_ATENEO.length || selectedAteneoLowerCase.includes(row[Values.FIELD_ATENEO].toLowerCase())) &&
+                    ( selectedFacolta.length == Values.VALUES_FACOLTA.length ||
                       (row[Values.FIELD_FACOLTA] != "" && selectedFacoltaLowerCase.includes(row[Values.FIELD_FACOLTA].toLowerCase())) ||
                       (row[Values.FIELD_STRUTTURA] != "" && selectedFacoltaLowerCase.includes(row[Values.FIELD_STRUTTURA].toLowerCase()))
                     ) &&
-                    (selectedFascia == Values.VALUES_FASCIA || (row[Values.FIELD_FASCIA] != "" && selectedFascia.includes(row[Values.FIELD_FASCIA]))) &&
-                    (selectedArea == Values.VALUES_AREA || (row[Values.FIELD_SSD] != "" && selectedSSDViaArea.includes(row[Values.FIELD_SSD]))) &&
-                    (selectedSC == Values.VALUES_SC || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC]))) &&
-                    (selectedSSD == Values.VALUES_SSD || (row[Values.FIELD_SSD] != "" && selectedSSD.includes(row[Values.FIELD_SSD])));
+                    (selectedFascia.length == Values.VALUES_FASCIA.length || (row[Values.FIELD_FASCIA] != "" && selectedFascia.includes(row[Values.FIELD_FASCIA]))) &&
+                    (selectedArea.length == Values.VALUES_AREA.length || (row[Values.FIELD_SSD] != "" && selectedAreaLowerCase.includes(row[Values.FIELD_AREA].toLowerCase()))) &&
+                    (selectedSC.length == Values.VALUES_SC.length || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC]))) &&
+                    (selectedSSD.length == Values.VALUES_SSD.length || (row[Values.FIELD_SSD] != "" && selectedSSD.includes(row[Values.FIELD_SSD])));
 
                 // se la riga rispetta i filtri allora aggiungo il conteggio all'ateneo corrispondente
                 if (rowOk && (row[Values.FIELD_ATENEO] != Values.FIELD_ATENEO)) {

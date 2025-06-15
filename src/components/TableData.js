@@ -21,21 +21,23 @@ export default function TableData({data, title}) {
     return (
 
             <table className="table-data">
-                <tr>
-                    <th className='table-data-title'>{title}</th>
-                    {yearsList.map((year, index) => 
-                        <th className="table-data-entry" key={index}>{year}</th>
-                    )}
-                </tr>
-
-                {data.data.map((dataAteneo, index) => 
-                    <tr className="table-data-row" key={index}>
-                        <td className="table-data-entry table-data-first-column">{dataAteneo.ateneo}</td>
-                        {dataAteneo.data.map((dataYear, index) => 
-                            <td className="table-data-entry" key={index}>{dataYear.conta}</td>
+                <tbody>
+                    <tr>
+                        <th className='table-data-title'>{title}</th>
+                        {yearsList.map((year, index) => 
+                            <th className="table-data-entry" key={index}>{year}</th>
                         )}
                     </tr>
-                )}
+
+                    {data.data.map((dataAteneo, index) => 
+                        <tr className="table-data-row" key={index}>
+                            <td className="table-data-entry table-data-first-column">{dataAteneo.ateneo}</td>
+                            {dataAteneo.data.map((dataYear, index) => 
+                                <td className="table-data-entry" key={index}>{dataYear.conta}</td>
+                            )}
+                        </tr>
+                    )}
+                </tbody>
             </table>
 
     )

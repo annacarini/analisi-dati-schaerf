@@ -164,8 +164,8 @@ export default function SingleAnalysis({dataset, pesi}) {
 
         // inizializzo la struttura dati
         for (const campo of _selectedField) {
-            totalCount[campo] = {};
-            totalPuntiOrg[campo] = {};
+            totalCount[campo.toLowerCase()] = {};
+            totalPuntiOrg[campo.toLowerCase()] = {};
         }
 
         // itero sugli anni perche' per ogni anno ho un file diverso
@@ -173,67 +173,50 @@ export default function SingleAnalysis({dataset, pesi}) {
             
             // inizializzo per ogni campo la conta per ogni anno
             for (const campo of _selectedField) {
-                totalCount[campo][anno] = 0;
-                totalPuntiOrg[campo][anno] = 0;
+                totalCount[campo.toLowerCase()][anno] = 0;
+                totalPuntiOrg[campo.toLowerCase()][anno] = 0;
             }
 
             // metto le selezioni in lowercase
             const selectedAteneoLowerCase = selectedAteneo.toLowerCase();
             const selectedFacoltaLowerCase = selectedFacolta.map((str) => str.toLowerCase());
+            const selectedAreaLowerCase = selectedArea.map((str) => str.toLowerCase());
 
             // prendo il file di quell'anno
             const data = dataset[getAnnoDatasetIndex(anno)];
 
-            // prendo gli ssd selezionati tramite area
-            var selectedSSDViaArea = [];
-            if (selectedArea != Values.VALUES_AREA) {
-                for (const area of selectedArea) {
-                    selectedSSDViaArea += Values.VALUES_SSD_PER_AREA[area];
-                }
-            }
-            else {
-                selectedSSDViaArea = Values.VALUES_SSD;
-            }
-            
+
             // itero sulle righe del file
             for (const row of data) {
 
                 // applico i filtri
                 const rowOk = 
                     (selectedAteneoLowerCase == row[Values.FIELD_ATENEO].toLowerCase()) &&
-                    ( selectedFacolta == Values.VALUES_FACOLTA ||
+                    (selectedFacolta.length == Values.VALUES_FACOLTA.length ||
                         (row[Values.FIELD_FACOLTA] != "" && selectedFacoltaLowerCase.includes(row[Values.FIELD_FACOLTA].toLowerCase())) ||
                         (row[Values.FIELD_STRUTTURA] != "" && selectedFacoltaLowerCase.includes(row[Values.FIELD_STRUTTURA].toLowerCase()))
                     ) &&
-                    (selectedFascia == Values.VALUES_FASCIA || (row[Values.FIELD_FASCIA] != "" && selectedFascia.includes(row[Values.FIELD_FASCIA]))) &&
-                    (selectedArea == Values.VALUES_AREA || (row[Values.FIELD_SSD] != "" && selectedSSDViaArea.includes(row[Values.FIELD_SSD]))) &&
-                    (selectedSC == Values.VALUES_SC || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC]))) &&
-                    (selectedSSD == Values.VALUES_SSD || (row[Values.FIELD_SSD] != "" && selectedSSD.includes(row[Values.FIELD_SSD])));
+                    (selectedFascia.length == Values.VALUES_FASCIA.length || (row[Values.FIELD_FASCIA] != "" && selectedFascia.includes(row[Values.FIELD_FASCIA]))) &&
+                    (selectedArea.length == Values.VALUES_AREA.length || (row[Values.FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.FIELD_AREA].toLowerCase()))) &&
+                    (selectedSC.length == Values.VALUES_SC.length || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC]))) &&
+                    (selectedSSD.length == Values.VALUES_SSD.length || (row[Values.FIELD_SSD] != "" && selectedSSD.includes(row[Values.FIELD_SSD])));
 
+                if (selectedAteneoLowerCase == row[Values.FIELD_ATENEO].toLowerCase() && !rowOk) {
+                    console.log("row not ok, area: " + row[Values.FIELD_AREA].toLowerCase() + ", anno: " + anno);
+                }
                 
                 // se la riga rispetta i filtri allora aggiungo il conteggio al campo corrispondente
-                if (rowOk && (row[_selectedFieldName] != _selectedFieldName)) {
-
-                    // se il campo scelto e' l'area bisogna ottenere il valore dallo ssd, se esiste
-                    var currentField = "";
-                    if (_selectedFieldName == Values.FIELD_AREA && row[Values.FIELD_SSD] != "") {
-                        currentField = getAreaBySSD(row[Values.FIELD_SSD]);
-                        if (currentField in totalCount) {
-                            totalCount[currentField][anno] += 1;
-                            let peso = 0;
-                            if (row[Values.FIELD_FASCIA] in pesi) {
-                                peso = pesi[row[Values.FIELD_FASCIA]];
-                            }
-                            totalPuntiOrg[currentField][anno] += peso;
-                        }
-                    }
-                    else if (_selectedFieldName != Values.FIELD_AREA && row[_selectedFieldName] in totalCount && row[_selectedFieldName] in totalPuntiOrg) {
-                        totalCount[row[_selectedFieldName]][anno] += 1;
+                if (rowOk) {
+                    if (row[_selectedFieldName].toLowerCase() in totalCount && row[_selectedFieldName].toLowerCase() in totalPuntiOrg) {
+                        totalCount[row[_selectedFieldName].toLowerCase()][anno] += 1;
                         let peso = 0;
                         if (row[Values.FIELD_FASCIA] in pesi) {
                             peso = pesi[row[Values.FIELD_FASCIA]];
                         }
-                        totalPuntiOrg[row[_selectedFieldName]][anno] += peso;
+                        totalPuntiOrg[row[_selectedFieldName].toLowerCase()][anno] += peso;
+                    }
+                    else {
+                        console.log("errore campo " + row[_selectedFieldName].toLowerCase() + " anno " + anno);
                     }
                 }
             }
