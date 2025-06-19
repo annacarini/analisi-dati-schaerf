@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/analisi-dati-schaerf/static/css/main.3280d4fe.css",
-    "main.js": "/analisi-dati-schaerf/static/js/main.293f0c33.js",
+    "main.js": "/analisi-dati-schaerf/static/js/main.e095e5de.js",
     "static/js/453.96030e14.chunk.js": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js",
     "static/media/completo_2008.csv": "/analisi-dati-schaerf/static/media/completo_2008.71a1b16cd8fa0bdabb24.csv",
     "static/media/completo_2007.csv": "/analisi-dati-schaerf/static/media/completo_2007.9b9eac4306b5dc45e585.csv",
     "static/media/completo_2006.csv": "/analisi-dati-schaerf/static/media/completo_2006.0b64ff552096a1825b58.csv",
-    "static/media/completo_2024.csv": "/analisi-dati-schaerf/static/media/completo_2024.97b1c178ddabb5573d0d.csv",
+    "static/media/completo_2024.csv": "/analisi-dati-schaerf/static/media/completo_2024.8a0003eea0eb1c72c9fc.csv",
     "static/media/completo_2023.csv": "/analisi-dati-schaerf/static/media/completo_2023.7323642b511655ae676c.csv",
     "static/media/completo_2009.csv": "/analisi-dati-schaerf/static/media/completo_2009.0dc96db5989701105a64.csv",
     "static/media/completo_2005.csv": "/analisi-dati-schaerf/static/media/completo_2005.232d99de3c0de48cacf7.csv",
     "static/media/completo_2011.csv": "/analisi-dati-schaerf/static/media/completo_2011.8a59b8e59ae398661801.csv",
-    "static/media/completo_2010.csv": "/analisi-dati-schaerf/static/media/completo_2010.954e7cd43840e8b4a2a4.csv",
+    "static/media/completo_2010.csv": "/analisi-dati-schaerf/static/media/completo_2010.fa39c002a6ab240db456.csv",
     "static/media/completo_2022.csv": "/analisi-dati-schaerf/static/media/completo_2022.0ecd4eb11e55cd0fdb47.csv",
     "static/media/completo_2002.csv": "/analisi-dati-schaerf/static/media/completo_2002.f2ab694f4a95a88321ee.csv",
     "static/media/completo_2004.csv": "/analisi-dati-schaerf/static/media/completo_2004.8bf1c9c90db14e5f3b11.csv",
@@ -33,11 +33,11 @@
     "index.html": "/analisi-dati-schaerf/index.html",
     "static/media/Pesi.csv": "/analisi-dati-schaerf/static/media/Pesi.6085ed1fa46e87889558.csv",
     "main.3280d4fe.css.map": "/analisi-dati-schaerf/static/css/main.3280d4fe.css.map",
-    "main.293f0c33.js.map": "/analisi-dati-schaerf/static/js/main.293f0c33.js.map",
+    "main.e095e5de.js.map": "/analisi-dati-schaerf/static/js/main.e095e5de.js.map",
     "453.96030e14.chunk.js.map": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3280d4fe.css",
-    "static/js/main.293f0c33.js"
+    "static/js/main.e095e5de.js"
   ]
 }
