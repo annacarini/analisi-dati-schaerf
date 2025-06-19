@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from 'react';
+import {React, useEffect, useState, useRef} from 'react';
 
 import * as d3 from "d3";
 
@@ -59,8 +59,14 @@ export default function Main() {
     const [dataset, setDataset] = useState([]);
     const [datasetReady, setDatasetReady] = useState(false);
 
+    // Per la progress bar del loading
+    const filesAmount = 1 + filePaths.length;
+    var filesLoadedAmount = 0;
+    const progressBar = useRef(null);
+
 
     useEffect(() => {
+        //updateProgress(0);
         loadPesi();
         loadDataset();
     },[]);
@@ -80,23 +86,56 @@ export default function Main() {
 
                 setPesi(p);
                 setPesiReady(true);
+
+                filesLoadedAmount += 1;
+                updateProgress(filesLoadedAmount);
             }
         );
     }
     
 
     function loadDataset() {
-        Promise.all(
-            filePaths.map(filepath => d3.csv(filepath))
-        ).then(function(files) {
+
+        const promises = filePaths.map(filepath => d3.csv(filepath))
+
+        // Per monitorare il progresso
+        for (const promise of promises) {
+            promise.then(() => { 
+                filesLoadedAmount += 1;
+                //console.log("caricati file " + _filesLoadedAmount);
+                updateProgress(filesLoadedAmount);
+            });
+        }
+
+        // Per quando caricano tutti i file
+        Promise.all(promises).then(function(files) {
             setDataset(files);
             setDatasetReady(true);
             console.log("dataset ready");
         }).catch(function(err) {
             console.log(err)
-        })
+        });
     }
 
+
+    function updateProgress(progress) {
+
+        if (progressBar.current == null) {
+            //console.log("progress bar is null");
+            return;
+        }
+        //console.log("updating progress bar");
+
+        const progressPercentage = progress / filesAmount * 100;
+        const progressBaseColor = "rgb(227, 227, 227)"; //'#C6C6C6';
+        const progressColor = "rgb(29, 83, 163)";
+
+        progressBar.current.style.background = `linear-gradient(to right,
+          ${progressColor} 0%,
+          ${progressColor} ${progressPercentage}%,
+          ${progressBaseColor} ${progressPercentage}%,
+          ${progressBaseColor} 100%)`;
+    }
 
     return (
         <div id="main">
@@ -108,11 +147,12 @@ export default function Main() {
             <hr className='row-under-buttons'/>
             {(datasetReady && pesiReady)
             ? <div>
-                <div style={{display: multiSelected ? 'block' : 'none'}}><MultiAnalysis dataset={dataset} pesi={pesi}/></div>
-                <div style={{display: !multiSelected ? 'block' : 'none'}}><SingleAnalysis dataset={dataset} pesi={pesi}/></div>
+                <div style={{display: multiSelected ? 'block' : 'none', background: "none"}}><MultiAnalysis dataset={dataset} pesi={pesi}/></div>
+                <div style={{display: !multiSelected ? 'block' : 'none', background: "none"}}><SingleAnalysis dataset={dataset} pesi={pesi}/></div>
             </div>
             : <div className="loader-container">
-                <div className="loader"></div> 
+                <div className="loader-progress-bar" ref={progressBar}/>
+                {/*<div className="loader"></div> */}
                 Loading dataset...
               </div>
             }

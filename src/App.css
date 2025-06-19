@@ -102,6 +102,15 @@ input[type='radio'], input[type='checkbox'] {
   100% { transform: rotate(360deg); }
 }
 
+.loader-progress-bar {
+  background-color: rgb(227, 227, 227);
+  width: 11vw;
+  height: 8px;
+  border-radius: 4px;
+  margin-bottom: 1.5vh;
+}
+
+
 
 /* Riga selezione analisi singola/multipla */
 

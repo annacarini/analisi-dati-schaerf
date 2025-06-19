@@ -180,12 +180,12 @@ export default function MultiAnalysis({dataset, pesi}) {
                       (row[Values.FIELD_STRUTTURA] != "" && selectedFacoltaLowerCase.includes(row[Values.FIELD_STRUTTURA].toLowerCase()))
                     ) &&
                     (selectedFascia.length == Values.VALUES_FASCIA.length || (row[Values.FIELD_FASCIA] != "" && selectedFascia.includes(row[Values.FIELD_FASCIA]))) &&
-                    (selectedArea.length == Values.VALUES_AREA.length || (row[Values.FIELD_SSD] != "" && selectedAreaLowerCase.includes(row[Values.FIELD_AREA].toLowerCase()))) &&
+                    (selectedArea.length == Values.VALUES_AREA.length || (row[Values.FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.FIELD_AREA].toLowerCase()))) &&
                     (selectedSC.length == Values.VALUES_SC.length || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC]))) &&
                     (selectedSSD.length == Values.VALUES_SSD.length || (row[Values.FIELD_SSD] != "" && selectedSSD.includes(row[Values.FIELD_SSD])));
 
                 // se la riga rispetta i filtri allora aggiungo il conteggio all'ateneo corrispondente
-                if (rowOk && (row[Values.FIELD_ATENEO] != Values.FIELD_ATENEO)) {
+                if (rowOk) {
                     totalCount[row[Values.FIELD_ATENEO]][anno] += 1;
                     let peso = 0;
                     if (row[Values.FIELD_FASCIA] in pesi) {
