@@ -456,8 +456,8 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
                         </button>
                     </div>
                     <div className="visualization-controls-separator"/>
-                    {/* TEMP */}
-                    <button onClick={toggleBandiLines}>Toggle bandi lines</button>
+                    {/* Toggle bandi */}
+                    <ToggleSwitch label={"Bandi"} checked={showingBandi} onChange={toggleBandiLines}/>
                 </div>
             </div>
         </div>
