@@ -190,6 +190,9 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
             // controlla se c'e' l'anno
             var rowOk = row[Values.BANDI_FIELD_YEAR] != "";
 
+            // visto che non ho info su SSD e facolta', se sono applicati quei filtri metti direttamente tutti i bandi a zero
+            rowOk = rowOk && (selectedFacolta.length == Values.VALUES_FACOLTA.length) && (selectedSSD.length == Values.VALUES_SSD.length)
+
             // filtri: ateneo
             rowOk = rowOk && selectedAteneoLowerCase.includes(row[Values.BANDI_FIELD_ATENEO].toLowerCase());
 

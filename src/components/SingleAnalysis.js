@@ -5,6 +5,8 @@ import * as d3 from "d3";
 import DualRangeSlider from './menu/DualRangeSlider';
 import DropDownCheckbox from './menu/DropDownCheckbox';
 import DropDownRadio from './menu/DropDownRadio';
+import ToggleSwitch from './menu/ToggleSwitch';
+
 import Values from "../DB/Values";
 
 import LineChart from './charts/LineChart';
@@ -54,6 +56,8 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
     // Per cambiare visualizzazione grafico/tabella
     const [showingGraph, setShowingGraph] = useState(true);
 
+    // Per mostrare/nascondere i dati sui bandi
+    const [showingBandi, setShowingBandi] = useState(true);
 
     // Per il caricamento
     const [loadingData, setLoadingData] = useState(false);
@@ -66,6 +70,27 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
 
     // Campo su cui fare il confronto
     const [selectedFieldName, setSelectedFieldName] = useState(Values.FIELD_AREA);
+
+
+    function toggleBandiLines() {
+        if (showingBandi) hideBandiLines();
+        else showBandiLines();
+    }
+
+    function hideBandiLines() {
+        const lines = document.querySelectorAll(".dashed-");
+        for (const line of lines) {
+            line.style.display = 'none';
+        }
+        setShowingBandi(false);
+    }
+    function showBandiLines() {
+        const lines = document.querySelectorAll(".dashed-");
+        for (const line of lines) {
+            line.style.display = 'block';
+        }
+        setShowingBandi(true);
+    }
 
 
     async function initializeLineChart() {
@@ -81,9 +106,12 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
         const vals = await computeData(selectedFieldName);
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
+        const valsBandi = await computeDataBandi(selectedFieldName);
 
-        lchart.draw(valsCount, dataBandi, annoStart, annoEnd, countYLabel);
+        lchart.draw(valsCount, valsBandi, annoStart, annoEnd, countYLabel);
 
+        hideBandiLines();
+        
         window.addEventListener("resize", () => {onWindowResize(lchart);});
     }
 
@@ -112,11 +140,12 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
         const vals = await computeData(_selectedFieldName);
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
+        const valsBandi = await computeDataBandi(_selectedFieldName);
         if (showingCount) {
-            lineChart.update(valsCount, annoStart, annoEnd, countYLabel);
+            lineChart.update(valsCount, valsBandi, annoStart, annoEnd, countYLabel);
         }
         else {
-            lineChart.update(valsPuntiOrg, annoStart, annoEnd, puntiYLabel);
+            lineChart.update(valsPuntiOrg, valsBandi, annoStart, annoEnd, puntiYLabel);
         }
         setUpdateButtonEnabled(false);
     }
@@ -141,6 +170,21 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
                 field = selectedFacolta; break;
             case Values.FIELD_FASCIA:
                 field = selectedFascia; break;
+            default:
+                break;
+        }
+        return field;
+    }
+
+    function getBandiFieldNameByFieldName(fieldName) {
+        var field = fieldName;
+        switch(fieldName) {
+            case Values.FIELD_AREA:
+                field = Values.BANDI_FIELD_AREA; break;
+            //case Values.FIELD_FACOLTA:
+            //    field = Values.BANDI_FIELD_FAC; break;
+            case Values.FIELD_FASCIA:
+                field = Values.BANDI_FIELD_FASCIA; break;
             default:
                 break;
         }
@@ -283,6 +327,137 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
             "punti": punti
         };
     }
+    
+
+
+    async function computeDataBandi(_selectedFieldName) {
+        console.log("inizio compute data bandi single analysis");
+        let startTime = performance.now();
+        setLoadingData(true);
+
+        const _selectedField = getFieldByFieldName(_selectedFieldName);
+        // prendi l'equivalente nome del campo per il file dei bandi
+        const newFieldName = getBandiFieldNameByFieldName(_selectedFieldName);
+
+        // inizializzo la struttura dati
+        var totalCount = {};
+        for (const campo of _selectedField) {
+            totalCount[campo.toLowerCase()] = {};
+            // inizializzo per ogni ateneo la conta per ogni anno
+            for (let anno = annoStart; anno <= annoEnd; anno++) {
+                totalCount[campo.toLowerCase()][anno] = 0;
+            }
+        }
+
+        // metto le selezioni in lowercase
+        const selectedAteneoLowerCase = selectedAteneo.toLowerCase();
+        const selectedAreaLowerCase = selectedArea.map((str) => str.toLowerCase());
+        
+
+        // itero sulle righe del file
+        for (const row of bandi) {
+
+            // controlla se c'e' l'anno
+            var rowOk = row[Values.BANDI_FIELD_YEAR] != "";
+            if (!rowOk) {
+                //console.log("riga fallita perche' manca anno");
+                continue;
+            }
+
+            // visto che non ho info su SSD e facolta', se sono applicati quei filtri metti direttamente tutti i bandi a zero
+            rowOk = rowOk && (selectedFacolta.length == Values.VALUES_FACOLTA.length) && (selectedSSD.length == Values.VALUES_SSD.length)
+            if (!rowOk) {
+                //console.log("riga fallita perche' non tutte le facolta' o ssd sono selezionati");
+                continue;
+            }
+
+            // filtri: ateneo
+            rowOk = rowOk && selectedAteneoLowerCase == row[Values.BANDI_FIELD_ATENEO].toLowerCase();
+            if (!rowOk) {
+                //console.log("riga fallita per ateneo");
+                continue;
+            }
+            else {
+                //console.log("ateneo giusto");
+            }
+
+            // filtri: fascia
+            const rowFascia = row[Values.BANDI_FIELD_FASCIA]; 
+            rowOk = rowOk && rowFascia != "" && selectedFascia.filter(fascia => Values.VALUES_FASCIA_BANDI[rowFascia].includes(fascia)).length > 0;
+            if (!rowOk) {
+                //console.log("riga fallita per fascia");
+                continue;
+            }
+
+            // filtri: area
+            rowOk = rowOk && (selectedArea.length == Values.VALUES_AREA.length || (row[Values.BANDI_FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.BANDI_FIELD_AREA].toLowerCase())));
+            if (!rowOk) {
+                //console.log("riga fallita per area");
+                continue;
+            }
+                
+            // filtri: SC
+            rowOk = rowOk && (selectedSC.length == Values.VALUES_SC.length || (row[Values.BANDI_FIELD_SC] != "" && selectedSC.includes(row[Values.BANDI_FIELD_SC])));
+            if (!rowOk) {
+                //console.log("riga fallita per sc");
+                continue;
+            }
+                
+            // se la riga rispetta i filtri allora aggiungo il conteggio all'ateneo corrispondente
+            if (rowOk) {
+                // controlla che sia una colonna del file
+                //console.log(row);
+                if (newFieldName in row) {
+                //if (row.hasOwnProperty(newFieldName)) {
+                    // controlla se l'anno e' nel range
+                    const anno = parseInt(row[Values.BANDI_FIELD_YEAR]);
+                    if (anno >= annoStart && anno <= annoEnd) {
+                        var numero_di_posti = 1;
+                        if (row[Values.BANDI_FIELD_POSTI] != "") {
+                            numero_di_posti = parseInt(row[Values.BANDI_FIELD_POSTI]);
+                        }
+                        totalCount[row[_selectedFieldName].toLowerCase()][anno] += numero_di_posti;
+                    }
+                }
+                else {
+                    console.log("no newfieldname in row");
+                }
+            }
+        }
+
+
+        // Metti i dati nel formato giusto
+
+        var totalCountNewFormat = [];
+        var maxCount = 0;
+
+        // ora totalCount e' del tipo: {"sapienza":{2000:100, 2001:124, ...}, "roma tre":{...}, ...}
+        for (var campo in totalCount) {
+
+            var maxCountCampo = 0;
+            var countPerAnno = [];
+
+            for (let anno = annoStart; anno <= annoEnd; anno++) {
+                maxCountCampo = Math.max(totalCount[campo][anno], maxCountCampo);
+                countPerAnno.push(new ChartDataEntry(anno, totalCount[campo][anno]));
+            }
+            
+            totalCountNewFormat.push(new ChartDataSingleAteneo(campo, countPerAnno, maxCountCampo));
+            maxCount = Math.max(maxCount, maxCountCampo);
+        }
+
+        const count = new ChartDataAtenei(maxCount, totalCountNewFormat);
+
+        setDataBandi(count);
+
+        let endTime = performance.now();
+        console.log("finito compute data bandi single analysis, durata: " + (endTime - startTime));
+        console.log(count);
+        
+        setLoadingData(false);
+
+        return count;
+    }
 
 
 
@@ -399,6 +574,9 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
                             <div className="visualization-selection-button-text">Tabella</div>
                         </button>
                     </div>
+                    <div className="visualization-controls-separator"/>
+                    {/* Toggle bandi */}
+                    <ToggleSwitch label={"Bandi"} checked={showingBandi} onChange={toggleBandiLines}/>
                     <div className="visualization-controls-separator"/>
                     <div className='analysis-title'>Analisi ateneo {selectedAteneo}, confronto per {selectedFieldName}</div>
                 </div>
