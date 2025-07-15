@@ -19,7 +19,7 @@ import ChartDataEntry from '../models/ChartDataEntry';
 
 import '../App.css';
 
-export default function MultiAnalysis({dataset, pesi}) {
+export default function MultiAnalysis({dataset, pesi, bandi}) {
 
     const refSVG = useRef();
     const refTooltip = useRef();
@@ -47,6 +47,7 @@ export default function MultiAnalysis({dataset, pesi}) {
     // Dati per il grafico
     const [dataCount, setDataCount] = useState(new ChartDataAtenei(0, []));         // conteggio professori
     const [dataPuntiOrg, setDataPuntiOrg] = useState(new ChartDataAtenei(0, []));   // conteggio punti organico
+    const [dataBandi, setDataBandi] = useState(new ChartDataAtenei(0, []));   // conteggio bandi
 
 
     // Per cambiare visualizzazione prof/punti
@@ -57,6 +58,9 @@ export default function MultiAnalysis({dataset, pesi}) {
     // Per cambiare visualizzazione grafico/tabella
     const [showingGraph, setShowingGraph] = useState(true);
 
+    // Per mostrare/nascondere i dati sui bandi
+    const [showingBandi, setShowingBandi] = useState(true);
+
     // Per il caricamento
     const [loadingData, setLoadingData] = useState(false);
     const [updateButtonEnabled, setUpdateButtonEnabled] = useState(false);
@@ -65,6 +69,28 @@ export default function MultiAnalysis({dataset, pesi}) {
     useEffect(() => {
         initializeLineChart();
     },[]);
+
+
+
+    function toggleBandiLines() {
+        if (showingBandi) hideBandiLines();
+        else showBandiLines();
+    }
+
+    function hideBandiLines() {
+        const lines = document.querySelectorAll(".dashed-");
+        for (const line of lines) {
+            line.style.display = 'none';
+        }
+        setShowingBandi(false);
+    }
+    function showBandiLines() {
+        const lines = document.querySelectorAll(".dashed-");
+        for (const line of lines) {
+            line.style.display = 'block';
+        }
+        setShowingBandi(true);
+    }
 
     
     async function initializeLineChart() {
@@ -80,8 +106,11 @@ export default function MultiAnalysis({dataset, pesi}) {
         const vals = await computeData();
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
+        const valsBandi = await computeDataBandi();
 
-        lchart.draw(valsCount, annoStart, annoEnd, countYLabel);
+        lchart.draw(valsCount, valsBandi, annoStart, annoEnd, countYLabel);
+
+        hideBandiLines();
 
         window.addEventListener("resize", () => {onWindowResize(lchart);});
     }
@@ -110,11 +139,12 @@ export default function MultiAnalysis({dataset, pesi}) {
         const vals = await computeData();
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
+        const valsBandi = await computeDataBandi();
         if (showingCount) {
-            lineChart.update(valsCount, annoStart, annoEnd, countYLabel);
+            lineChart.update(valsCount, valsBandi, annoStart, annoEnd, countYLabel);
         }
         else {
-            lineChart.update(valsPuntiOrg, annoStart, annoEnd, puntiYLabel);
+            lineChart.update(valsPuntiOrg, valsBandi, annoStart, annoEnd, puntiYLabel);
         }
         setUpdateButtonEnabled(false);
     }
@@ -132,6 +162,94 @@ export default function MultiAnalysis({dataset, pesi}) {
         return anno-Values.YEAR_START;
     }
 
+
+    async function computeDataBandi() {
+        console.log("inizio compute data bandi");
+        let startTime = performance.now();
+        setLoadingData(true);
+
+        var totalCount = {};
+
+        // inizializzo la struttura dati
+        for (const ateneo of selectedAteneo) {
+            totalCount[ateneo] = {};
+            // inizializzo per ogni ateneo la conta per ogni anno
+            for (let anno = annoStart; anno <= annoEnd; anno++) {
+                totalCount[ateneo][anno] = 0;
+            }
+        }
+
+        // metto le selezioni in lowercase
+        const selectedAteneoLowerCase = selectedAteneo.map((str) => str.toLowerCase());
+        const selectedAreaLowerCase = selectedArea.map((str) => str.toLowerCase());
+        
+
+        // itero sulle righe del file
+        for (const row of bandi) {
+
+            // controlla se c'e' l'anno
+            var rowOk = row[Values.BANDI_FIELD_YEAR] != "";
+
+            // filtri: ateneo
+            rowOk = rowOk && selectedAteneoLowerCase.includes(row[Values.BANDI_FIELD_ATENEO].toLowerCase());
+
+            // filtri: fascia
+            const rowFascia = row[Values.BANDI_FIELD_FASCIA]; 
+            rowOk = rowOk && rowFascia != "" && selectedFascia.filter(fascia => Values.VALUES_FASCIA_BANDI[rowFascia].includes(fascia)).length > 0;
+
+            // filtri: area
+            rowOk = rowOk && (selectedArea.length == Values.VALUES_AREA.length || (row[Values.BANDI_FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.BANDI_FIELD_AREA].toLowerCase())));
+                
+            // filtri: SC
+            rowOk = rowOk && (selectedSC.length == Values.VALUES_SC.length || (row[Values.BANDI_FIELD_SC] != "" && selectedSC.includes(row[Values.BANDI_FIELD_SC])));
+                
+            // se la riga rispetta i filtri allora aggiungo il conteggio all'ateneo corrispondente
+            if (rowOk) {
+                // controlla se l'anno e' nel range
+                const anno = parseInt(row[Values.BANDI_FIELD_YEAR]);
+                if (anno >= annoStart && anno <= annoEnd) {
+                    var numero_di_posti = 1;
+                    if (row[Values.BANDI_FIELD_POSTI] != "") {
+                        numero_di_posti = parseInt(row[Values.BANDI_FIELD_POSTI]);
+                    }
+                    totalCount[row[Values.BANDI_FIELD_ATENEO]][anno] += numero_di_posti;
+                }
+            }
+        }
+
+
+        // Metti i dati nel formato giusto
+
+        var totalCountNewFormat = [];
+        var maxCount = 0;
+
+        // ora totalCount e' del tipo: {"sapienza":{2000:100, 2001:124, ...}, "roma tre":{...}, ...}
+        for (var ateneo in totalCount) {
+
+            var maxCountAteneo = 0;
+            var countPerAnno = [];
+
+            for (let anno = annoStart; anno <= annoEnd; anno++) {
+                maxCountAteneo = Math.max(totalCount[ateneo][anno], maxCountAteneo);
+                countPerAnno.push(new ChartDataEntry(anno, totalCount[ateneo][anno]));
+            }
+            
+            totalCountNewFormat.push(new ChartDataSingleAteneo(ateneo, countPerAnno, maxCountAteneo));
+            maxCount = Math.max(maxCount, maxCountAteneo);
+        }
+
+        const count = new ChartDataAtenei(maxCount, totalCountNewFormat);
+
+        setDataBandi(count);
+
+        let endTime = performance.now();
+        console.log("finito compute data bandi, durata: " + (endTime - startTime));
+        console.log(count);
+        
+        setLoadingData(false);
+
+        return count;
+    }
 
 
     async function computeData() {
@@ -337,6 +455,9 @@ export default function MultiAnalysis({dataset, pesi}) {
                             <div className="visualization-selection-button-text">Tabella</div>
                         </button>
                     </div>
+                    <div className="visualization-controls-separator"/>
+                    {/* TEMP */}
+                    <button onClick={toggleBandiLines}>Toggle bandi lines</button>
                 </div>
             </div>
         </div>

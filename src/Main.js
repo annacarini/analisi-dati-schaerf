@@ -37,6 +37,10 @@ import completo_2023 from './DB/FilesUnitiCSV/completo_2023.csv';
 import completo_2024 from './DB/FilesUnitiCSV/completo_2024.csv';
 
 
+// import file dei bandi
+import file_bandi from './DB/bandi_formatted.csv';
+
+
 export default function Main() {
 
     //const CSV_PATH = "./DB/FilesUnitiCSV";
@@ -54,13 +58,16 @@ export default function Main() {
     const [pesi, setPesi] = useState({});
     const [pesiReady, setPesiReady] = useState(false);
 
-
     // DATASET (inizializzato dentro loadDataset)
     const [dataset, setDataset] = useState([]);
     const [datasetReady, setDatasetReady] = useState(false);
 
+    // BANDI (inizializzati dentro loadPesi)
+    const [bandi, setBandi] = useState({});
+    const [bandiReady, setBandiReady] = useState(false);
+
     // Per la progress bar del loading
-    const filesAmount = 1 + filePaths.length;
+    const filesAmount = 2 + filePaths.length;
     var filesLoadedAmount = 0;
     const progressBar = useRef(null);
 
@@ -68,6 +75,7 @@ export default function Main() {
     useEffect(() => {
         //updateProgress(0);
         loadPesi();
+        loadBandi();
         loadDataset();
     },[]);
 
@@ -86,6 +94,20 @@ export default function Main() {
 
                 setPesi(p);
                 setPesiReady(true);
+
+                filesLoadedAmount += 1;
+                updateProgress(filesLoadedAmount);
+            }
+        );
+    }
+    
+    function loadBandi() {
+        d3.csv(file_bandi).then(
+            function (data) {
+                console.log("loaded bandi");
+
+                setBandi(data);
+                setBandiReady(true);
 
                 filesLoadedAmount += 1;
                 updateProgress(filesLoadedAmount);
@@ -147,8 +169,8 @@ export default function Main() {
             <hr className='row-under-buttons'/>
             {(datasetReady && pesiReady)
             ? <div>
-                <div style={{display: multiSelected ? 'block' : 'none', background: "none"}}><MultiAnalysis dataset={dataset} pesi={pesi}/></div>
-                <div style={{display: !multiSelected ? 'block' : 'none', background: "none"}}><SingleAnalysis dataset={dataset} pesi={pesi}/></div>
+                <div style={{display: multiSelected ? 'block' : 'none', background: "none"}}><MultiAnalysis dataset={dataset} pesi={pesi} bandi={bandi}/></div>
+                <div style={{display: !multiSelected ? 'block' : 'none', background: "none"}}><SingleAnalysis dataset={dataset} pesi={pesi} bandi={bandi}/></div>
             </div>
             : <div className="loader-container">
                 <div className="loader-progress-bar" ref={progressBar}/>

@@ -18,6 +18,14 @@ export default class Values {
     static FIELD_YEAR = "year";
 
 
+    // nomi colonne FILE BANDI
+    static BANDI_FIELD_ATENEO = "Organizzazione";
+    static BANDI_FIELD_FASCIA = "Fascia";
+    static BANDI_FIELD_SC = "Settore Concorsuale";
+    static BANDI_FIELD_AREA = "Area";
+    static BANDI_FIELD_YEAR = "Data di Scadenza";
+    static BANDI_FIELD_POSTI = "Numero di Posti";
+
     // source:
     // http://www.inaf.it/it/documenti/adr-aree-cun-e-ssd
     static VALUES_SSD_PER_AREA = {
@@ -374,6 +382,28 @@ export default class Values {
         'Straordinario',
         'Straordinario tempo determinato'
     ];
+
+    // mappatura campo "Fascia" dei bandi a campo "Fascia" del dataset di cercauniversita'
+    static VALUES_FASCIA_BANDI = {
+        "Ordinario":[
+            'Ordinario','Ordinario r.e.'
+        ],
+        "Associato":[
+            'Associato',
+            'Associato confermato',
+            'Associato non confermato'
+        ],
+        "Ricercatore":[
+            'Ricercatore',
+            'Ricercatore a t.d. (art.1 comma 14 L. 230/05)',
+            'Ricercatore a t.d. - t.defin. (L. 79/2022)',
+            'Ricercatore a t.d. - t.defin. (art. 24 c.3-a L. 240/10)',
+            'Ricercatore a t.d. - t.defin. (art. 24 c.3-b L. 240/10)',
+            'Ricercatore a t.d. - t.pieno (L. 79/2022)',
+            'Ricercatore a t.d. - t.pieno (art. 24 c.3-a L. 240/10)',
+            'Ricercatore a t.d. - t.pieno (art. 24 c.3-b L. 240/10)',
+            'Ricercatore non confermato']
+    };
     
     static VALUES_AREA = [
         '01 - Scienze matematiche e informatiche',

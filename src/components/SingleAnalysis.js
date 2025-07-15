@@ -17,7 +17,7 @@ import ChartDataSingleAteneo from '../models/ChartDataSingleAteneo';
 import ChartDataEntry from '../models/ChartDataEntry';
 
 
-export default function SingleAnalysis({dataset, pesi}) {
+export default function SingleAnalysis({dataset, pesi, bandi}) {
 
     const refSVG = useRef();
     const refTooltip = useRef();
@@ -44,6 +44,7 @@ export default function SingleAnalysis({dataset, pesi}) {
     // Dati per il grafico
     const [dataCount, setDataCount] = useState(new ChartDataAtenei(0, []));         // conteggio professori
     const [dataPuntiOrg, setDataPuntiOrg] = useState(new ChartDataAtenei(0, []));   // conteggio punti organico
+    const [dataBandi, setDataBandi] = useState(new ChartDataAtenei(0, []));   // conteggio bandi
 
     // Per cambiare visualizzazione prof/punti
     const [showingCount, setShowingCount] = useState(true);
@@ -81,7 +82,7 @@ export default function SingleAnalysis({dataset, pesi}) {
         const valsCount = vals["count"];
         const valsPuntiOrg = vals["punti"];
 
-        lchart.draw(valsCount, annoStart, annoEnd, countYLabel);
+        lchart.draw(valsCount, dataBandi, annoStart, annoEnd, countYLabel);
 
         window.addEventListener("resize", () => {onWindowResize(lchart);});
     }

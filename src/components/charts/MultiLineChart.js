@@ -17,6 +17,7 @@ export default class MultiLineChart {
         this.index = index;
 
         this.data = [];
+        this.dashedData = [];
         this.xStart = 0;
         this.xEnd = 0;
         this.yLabel = "";
@@ -42,11 +43,11 @@ export default class MultiLineChart {
         this.svg.select(`#x-axis${this.index}`).attr("transform", `translate(0,${this.height})`);
 
         // aggiorna grafico
-        this.update(this.data, this.xStart, this.xEnd, this.yLabel, this.xLabel, this.withAnimation);
+        this.update(this.data, this.dashedData, this.xStart, this.xEnd, this.yLabel, this.xLabel, this.withAnimation);
     }
 
 
-    draw(vals, xStart, xEnd, yLabel, xLabel="Anno") {
+    draw(vals, dashedVals, xStart, xEnd, yLabel, xLabel="Anno") {
 
         /*
         // vals e' cosi':
@@ -72,6 +73,7 @@ export default class MultiLineChart {
         */
 
         this.data = vals;
+        this.dashedData = dashedVals;
         this.xStart = xStart;
         this.xEnd = xEnd;
         this.yLabel = yLabel;
@@ -91,7 +93,7 @@ export default class MultiLineChart {
         //scales
         const xScale = d3.scaleLinear().range([this.margin.left, this.width - this.margin.right]);
         const yScale = d3.scaleLinear().range([this.height - this.margin.top, this.margin.bottom]);
-    
+
         //axes
         d3.select(`#x-axis${this.index}`).remove();
         const xAxis = d3.axisBottom(xScale).ticks(countPerAnno.length);
@@ -110,27 +112,31 @@ export default class MultiLineChart {
             .call(yAxis);
         
 
+        this.xScale = xScale;
+        this.yScale = yScale;
 
-        this.update(vals, xStart, xEnd, yLabel, xLabel, false);
+        this.update(vals, dashedVals, xStart, xEnd, yLabel, xLabel, false);
     }
 
 
     // per quando switchi visualizzazione
     updateYValues(vals, yLabel) {
-        this.update(vals, this.xStart, this.xEnd, yLabel, "Anno", false);
+        this.update(vals, this.dashedData, this.xStart, this.xEnd, yLabel, "Anno", false);
     }
     
-    update(vals, xStart, xEnd, yLabel, xLabel="Anno", withAnimation=false) {
+    update(vals, dashedVals, xStart, xEnd, yLabel, xLabel="Anno", withAnimation=false) {
 
         this.data = vals;
+        this.dashedData = dashedVals;
         this.xStart = xStart;
         this.xEnd = xEnd;
         this.yLabel = yLabel;
         this.xLabel = xLabel;
         this.withAnimation = withAnimation;
 
-        const maxCount = vals.max;
+        const maxCount = Math.max(vals.max, dashedVals.max);
         const data = vals.data;
+        const dashedData = dashedVals.data;
 
         if (data.length < 1) return;
 
@@ -210,53 +216,94 @@ export default class MultiLineChart {
             .y((d) => yScale(d.conta));
         
 
+        this.xScale = xScale;
+        this.yScale = yScale;
+        
         // disegna nuove linee
         for (let i = 0; i < data.length; i++) {
-            this.drawLine(data[i].ateneo, i, data[i].data, myLine, xScale, yScale, data[i].color);
+            this.drawLine(data[i].ateneo, i, data[i].data, myLine, data[i].color);
+        }
+
+        // disegna nuove linee tratteggiate
+        for (let i = 0; i < dashedData.length; i++) {
+            this.drawLine(dashedData[i].ateneo, i, dashedData[i].data, myLine, dashedData[i].color, true);
         }
     }
 
 
 
-    drawLine(ateneo, index, data, lineGenerator, xScale, yScale, color="steelblue") {
+    drawLine(ateneo, index, data, lineGenerator, color="steelblue", dashed=false) {
 
         //console.log("drawing line for ateneo " + ateneo);
 
+        var dashedText = "";
+        if (dashed) {
+            dashedText = "dashed-";
+        }
+
         // Create a update selection: bind to the new data
-        var u = this.svg.selectAll(".lineTest-" + index).data([data], function(d){ return d.anno });
+        var u = this.svg.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
         var group = this.svg.append("g");  
 
         // me lo devo salvare qua perche' nelle funzioni anonime perdo il riferimento a "this" (con bind non funziona)
         const self = this;
 
-        u.enter()
+        const applyDashedStyle = (elem) => {
+            if (dashed) {
+                return elem.style("stroke-dasharray", ("5, 5"));
+            }
+            return elem;
+        }
+
+        applyDashedStyle(
+            u.enter()
             .append("path")
-            .attr("class","lineTest lineTest-" + index)
+            .attr("class",`lineTest lineTest-${dashedText}${index} ${dashedText}`)
             .merge(u)
+        )
             .attr("d", lineGenerator)
             .attr("fill", "none")
             .attr("stroke", color)
             .attr("stroke-width", 2.5)
             .on("mouseout",  this.closeTooltip.bind(this))
             .on('mouseover', function(event, d) { self.openTooltipNoData(self, ateneo, color, event);});
+
                 
         group
             .attr("class","myCircles")
-            .selectAll(".myCircles-" + index)
+            .selectAll(`.myCircles-${dashedText}${index}`)
             .data(data)
             .enter()
             .append("circle")
-            .attr("class","myCircles-" + index)
+            .attr("class",`myCircles-${dashedText}${index} ${dashedText}`)
             .attr("fill", color)
             .style("stroke","transparent")
             .style("stroke-width","10px")
-            .attr("cx", function(d) { return xScale(d.anno) })
-            .attr("cy", function(d) { return yScale(d.conta) })
+            .attr("cx", function(d) { return self.xScale(d.anno) })
+            .attr("cy", function(d) { return self.yScale(d.conta) })
             .attr("r", 3)
             .on("mouseout", this.closeTooltip.bind(this))
             .on('mouseover', function(event, d) { self.openTooltip(self, ateneo, color, event, d);})
     }
 
+    
+
+    drawDashedLines(vals) {
+
+        const data = vals.data;
+        this.dashedData = vals;
+        
+        //line generator
+        const myLine = d3.line()
+            .x((d, i) => this.xScale(d.anno))
+            .y((d) => this.yScale(d.conta));
+
+        // disegna linee
+        for (let i = 0; i < data.length; i++) {
+            console.log("ateeo: " + data[i].ateneo)
+            this.drawLine(data[i].ateneo, i, data[i].data, myLine, data[i].color, true);
+        }
+    }
 
     
     openTooltip(self, ateneo, color, event, d) {
