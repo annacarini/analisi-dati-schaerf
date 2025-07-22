@@ -9,8 +9,9 @@ export default class MultiLineChart {
     animationDuration = 2000;
 
 
-    constructor(svg, tooltip, margin, width, height, index) {
+    constructor(svg, dashedGroup, tooltip, margin, width, height, index) {
         this.svg = svg;
+        this.dashedGroup = dashedGroup;
         this.margin = margin;
         this.width = width;
         this.height = height;
@@ -241,9 +242,18 @@ export default class MultiLineChart {
             dashedText = "dashed-";
         }
 
-        // Create a update selection: bind to the new data
-        var u = this.svg.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
-        var group = this.svg.append("g");  
+        // se dashed, aggiungi le line a dashedGroup
+        if (dashed) {
+            var group = this.dashedGroup.append("g");
+            // Create a update selection: bind to the new data
+            var u = this.dashedGroup.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
+        }
+        // altrimenti crea un gruppo normale
+        else {
+            var group = this.svg.append("g");  
+            // Create a update selection: bind to the new data
+            var u = this.svg.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
+        }
 
         // me lo devo salvare qua perche' nelle funzioni anonime perdo il riferimento a "this" (con bind non funziona)
         const self = this;

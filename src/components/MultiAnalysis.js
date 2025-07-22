@@ -22,6 +22,7 @@ import '../App.css';
 export default function MultiAnalysis({dataset, pesi, bandi}) {
 
     const refSVG = useRef();
+    const refSVGDashedLines = useRef();
     const refTooltip = useRef();
 
     const margin = {top: 15, right: 0, bottom: 30, left: 40};
@@ -59,7 +60,7 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
     const [showingGraph, setShowingGraph] = useState(true);
 
     // Per mostrare/nascondere i dati sui bandi
-    const [showingBandi, setShowingBandi] = useState(true);
+    const [showingBandi, setShowingBandi] = useState(false);
 
     // Per il caricamento
     const [loadingData, setLoadingData] = useState(false);
@@ -71,36 +72,16 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
     },[]);
 
 
-
-    function toggleBandiLines() {
-        if (showingBandi) hideBandiLines();
-        else showBandiLines();
-    }
-
-    function hideBandiLines() {
-        const lines = document.querySelectorAll(".dashed-");
-        for (const line of lines) {
-            line.style.display = 'none';
-        }
-        setShowingBandi(false);
-    }
-    function showBandiLines() {
-        const lines = document.querySelectorAll(".dashed-");
-        for (const line of lines) {
-            line.style.display = 'block';
-        }
-        setShowingBandi(true);
-    }
-
     
     async function initializeLineChart() {
         const svg = d3.select(refSVG.current);
+        const dashedGroup = d3.select(refSVGDashedLines.current);
         const tooltip = d3.select(refTooltip.current);
         var width = WIDTH_PERCENTAGE*window.innerWidth - margin.left - margin.right;
         var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
 
         // Crea chart
-        const lchart = new MultiLineChart(svg, tooltip, margin, width, height, 1);
+        const lchart = new MultiLineChart(svg, dashedGroup, tooltip, margin, width, height, 1);
         setLineChart(lchart);
 
         const vals = await computeData();
@@ -109,8 +90,6 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
         const valsBandi = await computeDataBandi();
 
         lchart.draw(valsCount, valsBandi, annoStart, annoEnd, countYLabel);
-
-        hideBandiLines();
 
         window.addEventListener("resize", () => {onWindowResize(lchart);});
     }
@@ -188,34 +167,34 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
         for (const row of bandi) {
 
             // controlla se c'e' l'anno
-            var rowOk = row[Values.BANDI_FIELD_YEAR] != "";
+            var rowOk = row[Values.FIELD_YEAR] != "";
 
             // visto che non ho info su SSD e facolta', se sono applicati quei filtri metti direttamente tutti i bandi a zero
             rowOk = rowOk && (selectedFacolta.length == Values.VALUES_FACOLTA.length) && (selectedSSD.length == Values.VALUES_SSD.length)
 
             // filtri: ateneo
-            rowOk = rowOk && selectedAteneoLowerCase.includes(row[Values.BANDI_FIELD_ATENEO].toLowerCase());
+            rowOk = rowOk && selectedAteneoLowerCase.includes(row[Values.FIELD_ATENEO].toLowerCase());
 
             // filtri: fascia
-            const rowFascia = row[Values.BANDI_FIELD_FASCIA]; 
+            const rowFascia = row[Values.FIELD_FASCIA]; 
             rowOk = rowOk && rowFascia != "" && selectedFascia.filter(fascia => Values.VALUES_FASCIA_BANDI[rowFascia].includes(fascia)).length > 0;
 
             // filtri: area
-            rowOk = rowOk && (selectedArea.length == Values.VALUES_AREA.length || (row[Values.BANDI_FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.BANDI_FIELD_AREA].toLowerCase())));
+            rowOk = rowOk && (selectedArea.length == Values.VALUES_AREA.length || (row[Values.FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.FIELD_AREA].toLowerCase())));
                 
             // filtri: SC
-            rowOk = rowOk && (selectedSC.length == Values.VALUES_SC.length || (row[Values.BANDI_FIELD_SC] != "" && selectedSC.includes(row[Values.BANDI_FIELD_SC])));
+            rowOk = rowOk && (selectedSC.length == Values.VALUES_SC.length || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC])));
                 
             // se la riga rispetta i filtri allora aggiungo il conteggio all'ateneo corrispondente
             if (rowOk) {
                 // controlla se l'anno e' nel range
-                const anno = parseInt(row[Values.BANDI_FIELD_YEAR]);
+                const anno = parseInt(row[Values.FIELD_YEAR]);
                 if (anno >= annoStart && anno <= annoEnd) {
                     var numero_di_posti = 1;
                     if (row[Values.BANDI_FIELD_POSTI] != "") {
                         numero_di_posti = parseInt(row[Values.BANDI_FIELD_POSTI]);
                     }
-                    totalCount[row[Values.BANDI_FIELD_ATENEO]][anno] += numero_di_posti;
+                    totalCount[row[Values.FIELD_ATENEO]][anno] += numero_di_posti;
                 }
             }
         }
@@ -409,7 +388,11 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
             <div className='central-section'>
                 {/* Grafico */}
                 <div style={{display: showingGraph ? 'block' : 'none'}}>
-                    <svg className="chart" ref={refSVG}/>
+                    <svg className="chart" ref={refSVG}>
+                        {/* Gruppo dove metto le linee dei bandi, cosi' scelgo se mostrarle o nasconderle */}
+                        {/*<g className="chart-dashed-group" ref={refSVGDashedLines} style={{visbility: showingBandi ? 'visible' : 'hidden'}}/>*/}
+                        <g className="chart-dashed-group" ref={refSVGDashedLines} style={{visibility: showingBandi ? 'visible' : 'hidden'}}/>
+                    </svg>
                     {/* Tooltip */}
                     <div id="toolTipDiv1" className='tooltip' ref={refTooltip}>
                         <div id="toolTipDiv-title1" className='tooltip-title'></div>
@@ -426,9 +409,14 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
                         )}
                     </div>
                 </div>
-                {/* Tabella */}
+                {/* Tabelle */}
                 <div style={{display: !showingGraph ? 'block' : 'none'}} className="table-data-container">
+                    {/* Tabella prof/punti */}
                     <TableData data={showingCount? dataCount : dataPuntiOrg} title={showingCount? countYLabel : puntiYLabel}/>
+                    {/* Tabella bandi */}
+                    <div style={{display: showingBandi ? 'block' : 'none' }}>
+                        <TableData data={dataBandi} title={"Bandi"}/>
+                    </div>
                 </div>
             </div>
             {/* Opzioni di visualizzazione */}
@@ -460,7 +448,17 @@ export default function MultiAnalysis({dataset, pesi, bandi}) {
                     </div>
                     <div className="visualization-controls-separator"/>
                     {/* Toggle bandi */}
-                    <ToggleSwitch label={"Bandi"} checked={showingBandi} onChange={toggleBandiLines}/>
+                    <div>
+                        <ToggleSwitch label={"Mostra bandi"} checked={showingBandi} onChange={() => {setShowingBandi(!showingBandi);}}/>
+                        <div className="legenda-linee-bandi">
+                            <div className='legenda-bandi-riga'>
+                                <div className='legenda-bandi-quadrato colore-pieno'/>{showingCount? countYLabel : puntiYLabel}
+                            </div>
+                            <div className='legenda-bandi-riga'>
+                                <div className='legenda-bandi-quadrato colore-trattini'/>Bandi
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

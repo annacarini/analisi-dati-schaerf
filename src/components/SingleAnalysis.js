@@ -22,6 +22,7 @@ import ChartDataEntry from '../models/ChartDataEntry';
 export default function SingleAnalysis({dataset, pesi, bandi}) {
 
     const refSVG = useRef();
+    const refSVGDashedLines = useRef();
     const refTooltip = useRef();
 
     const margin = {top: 15, right: 0, bottom: 30, left: 40};
@@ -57,7 +58,7 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
     const [showingGraph, setShowingGraph] = useState(true);
 
     // Per mostrare/nascondere i dati sui bandi
-    const [showingBandi, setShowingBandi] = useState(true);
+    const [showingBandi, setShowingBandi] = useState(false);
 
     // Per il caricamento
     const [loadingData, setLoadingData] = useState(false);
@@ -72,35 +73,17 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
     const [selectedFieldName, setSelectedFieldName] = useState(Values.FIELD_AREA);
 
 
-    function toggleBandiLines() {
-        if (showingBandi) hideBandiLines();
-        else showBandiLines();
-    }
-
-    function hideBandiLines() {
-        const lines = document.querySelectorAll(".dashed-");
-        for (const line of lines) {
-            line.style.display = 'none';
-        }
-        setShowingBandi(false);
-    }
-    function showBandiLines() {
-        const lines = document.querySelectorAll(".dashed-");
-        for (const line of lines) {
-            line.style.display = 'block';
-        }
-        setShowingBandi(true);
-    }
 
 
     async function initializeLineChart() {
         const svg = d3.select(refSVG.current);
+        const dashedGroup = d3.select(refSVGDashedLines.current);
         const tooltip = d3.select(refTooltip.current);
         var width = WIDTH_PERCENTAGE*window.innerWidth - margin.left - margin.right;
         var height = HEIGHT_PERCENTAGE*window.innerHeight - margin.top - margin.bottom;
 
         // Crea chart
-        const lchart = new MultiLineChart(svg, tooltip, margin, width, height, 2);
+        const lchart = new MultiLineChart(svg, dashedGroup, tooltip, margin, width, height, 2);
         setLineChart(lchart);
 
         const vals = await computeData(selectedFieldName);
@@ -109,8 +92,6 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
         const valsBandi = await computeDataBandi(selectedFieldName);
 
         lchart.draw(valsCount, valsBandi, annoStart, annoEnd, countYLabel);
-
-        hideBandiLines();
         
         window.addEventListener("resize", () => {onWindowResize(lchart);});
     }
@@ -176,20 +157,6 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
         return field;
     }
 
-    function getBandiFieldNameByFieldName(fieldName) {
-        var field = fieldName;
-        switch(fieldName) {
-            case Values.FIELD_AREA:
-                field = Values.BANDI_FIELD_AREA; break;
-            //case Values.FIELD_FACOLTA:
-            //    field = Values.BANDI_FIELD_FAC; break;
-            case Values.FIELD_FASCIA:
-                field = Values.BANDI_FIELD_FASCIA; break;
-            default:
-                break;
-        }
-        return field;
-    }
 
 
     async function computeData(_selectedFieldName) {
@@ -336,8 +303,6 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
         setLoadingData(true);
 
         const _selectedField = getFieldByFieldName(_selectedFieldName);
-        // prendi l'equivalente nome del campo per il file dei bandi
-        const newFieldName = getBandiFieldNameByFieldName(_selectedFieldName);
 
         // inizializzo la struttura dati
         var totalCount = {};
@@ -358,7 +323,7 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
         for (const row of bandi) {
 
             // controlla se c'e' l'anno
-            var rowOk = row[Values.BANDI_FIELD_YEAR] != "";
+            var rowOk = row[Values.FIELD_YEAR] != "";
             if (!rowOk) {
                 //console.log("riga fallita perche' manca anno");
                 continue;
@@ -372,7 +337,7 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
             }
 
             // filtri: ateneo
-            rowOk = rowOk && selectedAteneoLowerCase == row[Values.BANDI_FIELD_ATENEO].toLowerCase();
+            rowOk = rowOk && selectedAteneoLowerCase == row[Values.FIELD_ATENEO].toLowerCase();
             if (!rowOk) {
                 //console.log("riga fallita per ateneo");
                 continue;
@@ -382,7 +347,7 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
             }
 
             // filtri: fascia
-            const rowFascia = row[Values.BANDI_FIELD_FASCIA]; 
+            const rowFascia = row[Values.FIELD_FASCIA]; 
             rowOk = rowOk && rowFascia != "" && selectedFascia.filter(fascia => Values.VALUES_FASCIA_BANDI[rowFascia].includes(fascia)).length > 0;
             if (!rowOk) {
                 //console.log("riga fallita per fascia");
@@ -390,14 +355,14 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
             }
 
             // filtri: area
-            rowOk = rowOk && (selectedArea.length == Values.VALUES_AREA.length || (row[Values.BANDI_FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.BANDI_FIELD_AREA].toLowerCase())));
+            rowOk = rowOk && (selectedArea.length == Values.VALUES_AREA.length || (row[Values.FIELD_AREA] != "" && selectedAreaLowerCase.includes(row[Values.FIELD_AREA].toLowerCase())));
             if (!rowOk) {
                 //console.log("riga fallita per area");
                 continue;
             }
                 
             // filtri: SC
-            rowOk = rowOk && (selectedSC.length == Values.VALUES_SC.length || (row[Values.BANDI_FIELD_SC] != "" && selectedSC.includes(row[Values.BANDI_FIELD_SC])));
+            rowOk = rowOk && (selectedSC.length == Values.VALUES_SC.length || (row[Values.FIELD_SC] != "" && selectedSC.includes(row[Values.FIELD_SC])));
             if (!rowOk) {
                 //console.log("riga fallita per sc");
                 continue;
@@ -407,10 +372,10 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
             if (rowOk) {
                 // controlla che sia una colonna del file
                 //console.log(row);
-                if (newFieldName in row) {
+                if (_selectedFieldName in row && row[_selectedFieldName].toLowerCase() in totalCount) {
                 //if (row.hasOwnProperty(newFieldName)) {
                     // controlla se l'anno e' nel range
-                    const anno = parseInt(row[Values.BANDI_FIELD_YEAR]);
+                    const anno = parseInt(row[Values.FIELD_YEAR]);
                     if (anno >= annoStart && anno <= annoEnd) {
                         var numero_di_posti = 1;
                         if (row[Values.BANDI_FIELD_POSTI] != "") {
@@ -420,7 +385,7 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
                     }
                 }
                 else {
-                    console.log("no newfieldname in row");
+                    console.log("no fieldname in row");
                 }
             }
         }
@@ -506,7 +471,10 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
             <div className='central-section'>
                 {/* Grafico */}
                 <div style={{display: showingGraph ? 'block' : 'none'}}>
-                    <svg className="chart" ref={refSVG}/>
+                    <svg className="chart" ref={refSVG}>
+                        {/* Gruppo dove metto le linee dei bandi, cosi' scelgo se mostrarle o nasconderle */}
+                        <g className="chart-dashed-group" ref={refSVGDashedLines} style={{visibility: showingBandi ? 'visible' : 'hidden'}}/>
+                    </svg>
                     {/* Tooltip */}
                     <div id="toolTipDiv2" className='tooltip' ref={refTooltip}>
                         <div id="toolTipDiv-title2" className='tooltip-title'></div>
@@ -523,9 +491,14 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
                         )}
                     </div>
                 </div>
-                {/* Tabella */}
+                {/* Tabelle */}
                 <div style={{display: !showingGraph ? 'block' : 'none'}} className="table-data-container">
+                    {/* Tabella prof/punti */}
                     <TableData data={showingCount? dataCount : dataPuntiOrg} title={showingCount? countYLabel : puntiYLabel}/>
+                    {/* Tabella bandi */}
+                    <div style={{display: showingBandi ? 'block' : 'none' }}>
+                        <TableData data={dataBandi} title={"Bandi"}/>
+                    </div>
                 </div>
             </div>
             {/* Opzioni di visualizzazione */}
@@ -546,6 +519,7 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
                     <div className="visualization-controls-separator"/>
                     {/* Scelta campo su cui fare il confronto */}
                     <div className="visualization-selection-campo-confronto">
+                        <div id='vis-sel-label'>Confronta:</div>
                         <div>
                             <input type="radio" name="visualization-selection-campo-confronto" id="vis-sel-campo-area"
                                 onClick={() => {setSelectedFieldName(Values.FIELD_AREA); updateLineChart(Values.FIELD_AREA);}} checked={selectedFieldName == Values.FIELD_AREA}/>
@@ -556,11 +530,13 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
                                 onClick={() => {setSelectedFieldName(Values.FIELD_FASCIA); updateLineChart(Values.FIELD_FASCIA);}} checked={selectedFieldName == Values.FIELD_FASCIA}/>
                             <label htmlFor="vis-sel-campo-fascia">Fascia</label>
                         </div>
+                        {/*
                         <div>
                             <input type="radio" name="visualization-selection-campo-confronto" id="vis-sel-campo-facolta"
                                 onClick={() => {setSelectedFieldName(Values.FIELD_FACOLTA); updateLineChart(Values.FIELD_FACOLTA);}} checked={selectedFieldName == Values.FIELD_FACOLTA}/>
                             <label htmlFor="vis-sel-campo-facolta">Facoltà</label>
                         </div>
+                        */}
                     </div>
                     <div className="visualization-controls-separator"/>
                     {/* Scelta grafico o tabella */}
@@ -576,7 +552,17 @@ export default function SingleAnalysis({dataset, pesi, bandi}) {
                     </div>
                     <div className="visualization-controls-separator"/>
                     {/* Toggle bandi */}
-                    <ToggleSwitch label={"Bandi"} checked={showingBandi} onChange={toggleBandiLines}/>
+                    <div>
+                        <ToggleSwitch label={"Mostra bandi"} checked={showingBandi} onChange={() => {setShowingBandi(!showingBandi);}}/>
+                        <div className="legenda-linee-bandi">
+                            <div className='legenda-bandi-riga'>
+                                <div className='legenda-bandi-quadrato colore-pieno'/>{showingCount? countYLabel : puntiYLabel}
+                            </div>
+                            <div className='legenda-bandi-riga'>
+                                <div className='legenda-bandi-quadrato colore-trattini'/>Bandi
+                            </div>
+                        </div>
+                    </div>
                     <div className="visualization-controls-separator"/>
                     <div className='analysis-title'>Analisi ateneo {selectedAteneo}, confronto per {selectedFieldName}</div>
                 </div>

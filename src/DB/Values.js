@@ -19,11 +19,6 @@ export default class Values {
 
 
     // nomi colonne FILE BANDI
-    static BANDI_FIELD_ATENEO = "Organizzazione";
-    static BANDI_FIELD_FASCIA = "Fascia";
-    static BANDI_FIELD_SC = "Settore Concorsuale";
-    static BANDI_FIELD_AREA = "Area";
-    static BANDI_FIELD_YEAR = "Data di Scadenza";
     static BANDI_FIELD_POSTI = "Numero di Posti";
 
     // source:
