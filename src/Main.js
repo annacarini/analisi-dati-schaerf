@@ -4,6 +4,7 @@ import * as d3 from "d3";
 
 import MultiAnalysis from './components/MultiAnalysis';
 import SingleAnalysis from './components/SingleAnalysis';
+import GrantsAnalysis from './components/GrantsAnalysis';
 
 
 // import file pesi
@@ -40,8 +41,20 @@ import completo_2024 from './DB/FilesUnitiCSV/completo_2024.csv';
 // import file dei bandi
 import file_bandi from './DB/bandi_formatted.csv';
 
+// import file grants
+import file_grants from './DB/grants.csv';
+
 
 export default function Main() {
+
+    const Options = {
+        Multi: '0',
+        Single: '1',
+        Grants: '2'
+    };
+
+    // Per scegliere cosa vedere
+    const [selectedOption, setSelectedOption] = useState(Options.Multi);
 
     //const CSV_PATH = "./DB/FilesUnitiCSV";
     const filePaths = [completo_2000,completo_2001,completo_2002,completo_2003,
@@ -51,35 +64,43 @@ export default function Main() {
         completo_2019,completo_2020,completo_2021,completo_2022,completo_2023,completo_2024];
 
 
-    // Per scegliere se analizzare piu atenei insieme o solo uno
-    const [multiSelected, setMultiSelected] = useState(true);
-
     // PESI (inizializzati dentro loadPesi)
     const [pesi, setPesi] = useState({});
-    const [pesiReady, setPesiReady] = useState(false);
 
     // DATASET (inizializzato dentro loadDataset)
     const [dataset, setDataset] = useState([]);
-    const [datasetReady, setDatasetReady] = useState(false);
 
-    // BANDI (inizializzati dentro loadPesi)
+    // BANDI (inizializzati dentro loadBandi)
     const [bandi, setBandi] = useState({});
-    const [bandiReady, setBandiReady] = useState(false);
 
-    // Per la progress bar del loading
-    const filesAmount = 2 + filePaths.length;
+    // BANDI (inizializzati dentro loadGrants)
+    const [grants, setGrants] = useState({});
+
+    // Per la progress bar del loading e per capire se ho caricato tutto
+    const filesAmount = filePaths.length + 3;   // (file pesi, file bandi, file grants)
     var filesLoadedAmount = 0;
     const progressBar = useRef(null);
+    const [everythingLoaded, setEverythingLoaded] = useState(false);
 
 
     useEffect(() => {
         //updateProgress(0);
         loadPesi();
         loadBandi();
+        loadGrants();
         loadDataset();
     },[]);
 
 
+    function incrementFilesLoaded() {
+
+        filesLoadedAmount += 1;
+        updateProgress(filesLoadedAmount);
+
+        if (filesLoadedAmount == filesAmount) {
+            setEverythingLoaded(true);
+        }
+    }
     
     function loadPesi() {
         d3.csv(file_pesi).then(
@@ -93,10 +114,7 @@ export default function Main() {
                 }
 
                 setPesi(p);
-                setPesiReady(true);
-
-                filesLoadedAmount += 1;
-                updateProgress(filesLoadedAmount);
+                incrementFilesLoaded();                
             }
         );
     }
@@ -105,16 +123,21 @@ export default function Main() {
         d3.csv(file_bandi).then(
             function (data) {
                 console.log("loaded bandi");
-
                 setBandi(data);
-                setBandiReady(true);
-
-                filesLoadedAmount += 1;
-                updateProgress(filesLoadedAmount);
+                incrementFilesLoaded();
             }
         );
     }
     
+    function loadGrants() {
+        d3.csv(file_grants).then(
+            function (data) {
+                console.log("loaded grants");
+                setGrants(data);
+                incrementFilesLoaded();
+            }
+        );
+    }
 
     function loadDataset() {
 
@@ -123,16 +146,13 @@ export default function Main() {
         // Per monitorare il progresso
         for (const promise of promises) {
             promise.then(() => { 
-                filesLoadedAmount += 1;
-                //console.log("caricati file " + _filesLoadedAmount);
-                updateProgress(filesLoadedAmount);
+                incrementFilesLoaded();
             });
         }
 
         // Per quando caricano tutti i file
         Promise.all(promises).then(function(files) {
             setDataset(files);
-            setDatasetReady(true);
             console.log("dataset ready");
         }).catch(function(err) {
             console.log(err)
@@ -163,14 +183,16 @@ export default function Main() {
         <div id="main">
             {/* Barra pulsanti analisi singola/multipla */}
             <div className="analysis-type-row">
-                <button className={"active-" + multiSelected} onClick={() => {setMultiSelected(true);}}>Più atenei</button>
-                <button className={"active-" + !multiSelected} onClick={() => {setMultiSelected(false);}}>Singolo ateneo</button>
+                <button className={"active-" + (selectedOption == Options.Multi)} onClick={() => {setSelectedOption(Options.Multi);}}>Più atenei</button>
+                <button className={"active-" + (selectedOption == Options.Single)} onClick={() => {setSelectedOption(Options.Single);}}>Singolo ateneo</button>
+                <button className={"active-" + (selectedOption == Options.Grants)} onClick={() => {setSelectedOption(Options.Grants);}}>Grants</button>
             </div>
             <hr className='row-under-buttons'/>
-            {(datasetReady && pesiReady)
+            { everythingLoaded
             ? <div>
-                <div style={{display: multiSelected ? 'block' : 'none', background: "none"}}><MultiAnalysis dataset={dataset} pesi={pesi} bandi={bandi}/></div>
-                <div style={{display: !multiSelected ? 'block' : 'none', background: "none"}}><SingleAnalysis dataset={dataset} pesi={pesi} bandi={bandi}/></div>
+                <div style={{display: (selectedOption == Options.Multi) ? 'block' : 'none', background: "none"}}><MultiAnalysis dataset={dataset} pesi={pesi} bandi={bandi}/></div>
+                <div style={{display: (selectedOption == Options.Single) ? 'block' : 'none', background: "none"}}><SingleAnalysis dataset={dataset} pesi={pesi} bandi={bandi}/></div>
+                <div style={{display: (selectedOption == Options.Grants) ? 'block' : 'none', background: "none"}}><GrantsAnalysis grants={grants}/></div>
             </div>
             : <div className="loader-container">
                 <div className="loader-progress-bar" ref={progressBar}/>

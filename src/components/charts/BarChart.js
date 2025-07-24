@@ -4,26 +4,23 @@ import ColorUtilities from "../../utils/ColorUtilities";
 
 import "./Charts.css";
 
-export default class MultiLineChart {
+export default class BarChart {
 
     animationDuration = 2000;
 
 
-    constructor(svg, dashedGroup, tooltip, margin, width, height, index) {
+    constructor(svg, tooltip, margin, width, height, index) {
         this.svg = svg;
-        this.dashedGroup = dashedGroup;
         this.margin = margin;
         this.width = width;
         this.height = height;
         this.index = index;
 
         this.data = [];
-        this.dashedData = [];
         this.xStart = 0;
         this.xEnd = 0;
         this.yLabel = "";
         this.xLabel = "";
-        this.withAnimation = false;
 
         this.tooltip = tooltip;
 
@@ -44,11 +41,11 @@ export default class MultiLineChart {
         this.svg.select(`#x-axis${this.index}`).attr("transform", `translate(0,${this.height})`);
 
         // aggiorna grafico
-        this.update(this.data, this.dashedData, this.xStart, this.xEnd, this.yLabel, this.xLabel, this.withAnimation);
+        this.update(this.data, this.xStart, this.xEnd, this.yLabel, this.xLabel);
     }
 
 
-    draw(vals, dashedVals, xStart, xEnd, yLabel, xLabel="Anno") {
+    draw(vals, xStart, xEnd, yLabel, xLabel="Anno") {
 
         /*
         // vals e' cosi':
@@ -122,22 +119,19 @@ export default class MultiLineChart {
 
     // per quando switchi visualizzazione
     updateYValues(vals, yLabel) {
-        this.update(vals, this.dashedData, this.xStart, this.xEnd, yLabel, "Anno", false);
+        this.update(vals, this.xStart, this.xEnd, yLabel, "Anno", false);
     }
     
-    update(vals, dashedVals, xStart, xEnd, yLabel, xLabel="Anno", withAnimation=false) {
+    update(vals, xStart, xEnd, yLabel, xLabel="Anno") {
 
         this.data = vals;
-        this.dashedData = dashedVals;
         this.xStart = xStart;
         this.xEnd = xEnd;
         this.yLabel = yLabel;
         this.xLabel = xLabel;
-        this.withAnimation = withAnimation;
 
-        const maxCount = Math.max(vals.max, dashedVals.max);
+        const maxCount = vals.max;
         const data = vals.data;
-        const dashedData = dashedVals.data;
 
         if (data.length < 1) return;
 
@@ -224,53 +218,26 @@ export default class MultiLineChart {
         for (let i = 0; i < data.length; i++) {
             this.drawLine(data[i].ateneo, i, data[i].data, myLine, data[i].color);
         }
-
-        // disegna nuove linee tratteggiate
-        for (let i = 0; i < dashedData.length; i++) {
-            this.drawLine(dashedData[i].ateneo, i, dashedData[i].data, myLine, dashedData[i].color, true);
-        }
     }
 
 
 
-    drawLine(ateneo, index, data, lineGenerator, color="steelblue", dashed=false) {
+    drawLine(ateneo, index, data, lineGenerator, color="steelblue") {
 
         //console.log("drawing line for ateneo " + ateneo);
 
-        var dashedText = "";
-        if (dashed) {
-            dashedText = "dashed-";
-        }
-
-        // se dashed, aggiungi le line a dashedGroup
-        if (dashed) {
-            var group = this.dashedGroup.append("g");
-            // Create a update selection: bind to the new data
-            var u = this.dashedGroup.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
-        }
-        // altrimenti crea un gruppo normale
-        else {
-            var group = this.svg.append("g");  
-            // Create a update selection: bind to the new data
-            var u = this.svg.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
-        }
+        // Create a update selection: bind to the new data
+        var u = this.svg.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
+        var group = this.svg.append("g");  
 
         // me lo devo salvare qua perche' nelle funzioni anonime perdo il riferimento a "this" (con bind non funziona)
         const self = this;
 
-        const applyDashedStyle = (elem) => {
-            if (dashed) {
-                return elem.style("stroke-dasharray", ("5, 5"));
-            }
-            return elem;
-        }
 
-        applyDashedStyle(
-            u.enter()
+        u.enter()
             .append("path")
-            .attr("class",`lineTest lineTest-${dashedText}${index} ${dashedText}`)
+            .attr("class",`lineTest lineTest-${index}`)
             .merge(u)
-        )
             .attr("d", lineGenerator)
             .attr("fill", "none")
             .attr("stroke", color)
@@ -281,11 +248,11 @@ export default class MultiLineChart {
                 
         group
             .attr("class","myCircles")
-            .selectAll(`.myCircles-${dashedText}${index}`)
+            .selectAll(`.myCircles-${index}`)
             .data(data)
             .enter()
             .append("circle")
-            .attr("class",`myCircles-${dashedText}${index} ${dashedText}`)
+            .attr("class",`myCircles-${index}`)
             .attr("fill", color)
             .style("stroke","transparent")
             .style("stroke-width","10px")
