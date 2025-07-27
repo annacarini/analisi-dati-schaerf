@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/analisi-dati-schaerf/static/css/main.8cda5a31.css",
-    "main.js": "/analisi-dati-schaerf/static/js/main.6ebee008.js",
+    "main.js": "/analisi-dati-schaerf/static/js/main.addf9260.js",
     "static/js/453.96030e14.chunk.js": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js",
     "static/media/bandi_formatted.csv": "/analisi-dati-schaerf/static/media/bandi_formatted.a8e42c1bb3a326325aa9.csv",
     "static/media/completo_2008.csv": "/analisi-dati-schaerf/static/media/completo_2008.71a1b16cd8fa0bdabb24.csv",
@@ -35,11 +35,11 @@
     "index.html": "/analisi-dati-schaerf/index.html",
     "static/media/Pesi.csv": "/analisi-dati-schaerf/static/media/Pesi.6085ed1fa46e87889558.csv",
     "main.8cda5a31.css.map": "/analisi-dati-schaerf/static/css/main.8cda5a31.css.map",
-    "main.6ebee008.js.map": "/analisi-dati-schaerf/static/js/main.6ebee008.js.map",
+    "main.addf9260.js.map": "/analisi-dati-schaerf/static/js/main.addf9260.js.map",
     "453.96030e14.chunk.js.map": "/analisi-dati-schaerf/static/js/453.96030e14.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.8cda5a31.css",
-    "static/js/main.6ebee008.js"
+    "static/js/main.addf9260.js"
   ]
 }
