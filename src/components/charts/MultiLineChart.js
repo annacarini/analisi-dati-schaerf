@@ -276,6 +276,7 @@ export default class MultiLineChart {
             .attr("stroke", color)
             .attr("stroke-width", 2.5)
             .on("mouseout",  this.closeTooltip.bind(this))
+            .on("mousemove", function(event) { self.moveTooltip(self, event);})
             .on('mouseover', function(event, d) { self.openTooltipNoData(self, ateneo, color, event);});
 
                 
@@ -293,6 +294,7 @@ export default class MultiLineChart {
             .attr("cy", function(d) { return self.yScale(d.conta) })
             .attr("r", 3)
             .on("mouseout", this.closeTooltip.bind(this))
+            .on("mousemove", function(event) { self.moveTooltip(self, event);})
             .on('mouseover', function(event, d) { self.openTooltip(self, ateneo, color, event, d);})
     }
 
@@ -333,6 +335,11 @@ export default class MultiLineChart {
         //console.log("closing tooltip");
         this.tooltip.style('opacity', 0);
     }
-    
 
+    moveTooltip(self, event) {
+        console.log("moving tooltip");
+        self.tooltip
+            .style('left', (event.pageX - 38) + 'px')     
+            .style('top', (event.pageY - 28) + 'px');
+    }
 }

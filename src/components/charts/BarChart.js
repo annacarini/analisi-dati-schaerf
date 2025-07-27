@@ -259,7 +259,8 @@ export default class BarChart {
             .attr("height", (d) => yScale(0) - yScale(d.somma))
             .attr("width", xScale.bandwidth())
             .on("mouseout",  this.closeTooltip.bind(this))
-            .on('mouseover', function(event, d) { self.openTooltipSimple(self, event, d)});;
+            .on("mousemove", function(event) { self.moveTooltip(self, event)})
+            .on('mouseover', function(event, d) { self.openTooltipSimple(self, event, d)});
     }
 
     
@@ -433,6 +434,7 @@ export default class BarChart {
                 .attr("width", xScale.bandwidth())
                 .attr("stroke", "grey")
             .on("mouseout",  this.closeTooltip.bind(this))
+            .on("mousemove", function(event) { self.moveTooltip(self, event);})
             .on('mouseover', function(event, d) { self.openTooltipStacked(self, event, d.data)});
 
     }
@@ -502,5 +504,10 @@ export default class BarChart {
         this.tooltip.style('opacity', 0);
     }
     
-
+    moveTooltip(self, event) {
+        console.log("moving tooltip");
+        self.tooltip
+            .style('left', (event.pageX - 38) + 'px')     
+            .style('top', (event.pageY - 28) + 'px');
+    }
 }
