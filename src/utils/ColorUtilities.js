@@ -34,8 +34,22 @@ export default class ColorUtilities {
         })
         
         var h = Math.abs(hash % 360);
-        var s = 65 + Math.abs(hash % 35);
-        var l = 45 + Math.abs(hash % 15);
+        var s = 40 + Math.abs(hash % 45);
+        var l = 40 + Math.abs(hash % 20);
+
+        return ColorUtilities.hslToString([h,s,l]);
+    }
+
+
+    static stringToColor2(str) {
+        let hash = 0;
+        str.split('').forEach(char => {
+            hash = char.charCodeAt(0) + ((hash << 5) - hash);
+        })
+        
+        var h = Math.abs(hash % 360);
+        var s = 70 + Math.abs(hash % 35);
+        var l = 55 + Math.abs(hash % 20);
 
         return ColorUtilities.hslToString([h,s,l]);
     }

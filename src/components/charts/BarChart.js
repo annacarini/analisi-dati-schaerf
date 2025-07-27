@@ -9,11 +9,12 @@ export default class BarChart {
     animationDuration = 2000;
 
 
-    constructor(svg, tooltip, margin, width, height, index) {
+    constructor(svg, tooltip, margin, width, height, stacked, index) {
         this.svg = svg;
         this.margin = margin;
         this.width = width;
         this.height = height;
+        this.stacked = stacked;
         this.index = index;
 
         this.data = [];
@@ -41,28 +42,32 @@ export default class BarChart {
         this.svg.select(`#x-axis${this.index}`).attr("transform", `translate(0,${this.height})`);
 
         // aggiorna grafico
-        this.update(this.data, this.xStart, this.xEnd, this.yLabel, this.xLabel);
+        this.update(this.data, this.xStart, this.xEnd, this.stacked, this.yLabel, this.xLabel);
     }
 
 
-    draw(vals, xStart, xEnd, yLabel, xLabel="Anno") {
+    draw(vals, xStart, xEnd, stacked, yLabel, xLabel="Anno") {
 
         /*
         // vals e' cosi':
         vals = {
-            max: max, 
+            ateneo: ateneo,
+            max: max,
+            color: color,
             data: [
-             {
-                ateneo: ateneo,
-                data: [
-                  {
+                {
                     anno: anno,
-                    conta: conta
-                  }, ...
-                ],
-                max: max,
-                color: color
-             }, ...
+                    somma: somma,
+                    data: [
+                        {
+                            nome: nome,
+                            valore: valore,
+                            color: color,
+                        },
+                        ...
+                    ]
+                },
+                ...
             ]
         }
 
@@ -71,14 +76,13 @@ export default class BarChart {
         */
 
         this.data = vals;
-        this.dashedData = dashedVals;
         this.xStart = xStart;
         this.xEnd = xEnd;
+        this.stacked = stacked;
         this.yLabel = yLabel;
         this.xLabel = xLabel;
 
-        const countPerAteneo = vals.data;
-        const countPerAnno = vals.data[0].data;
+        const countPerAnno = vals.data;
 
 
         // Prendi elemento svg
@@ -89,7 +93,11 @@ export default class BarChart {
 
 
         //scales
-        const xScale = d3.scaleLinear().range([this.margin.left, this.width - this.margin.right]);
+        const xScale = d3
+            .scaleBand()
+            .domain(countPerAnno.map(d => parseInt(d.anno)))
+            .range([this.margin.left, this.width - this.margin.right])
+            .padding(0.1);
         const yScale = d3.scaleLinear().range([this.height - this.margin.top, this.margin.bottom]);
 
         //axes
@@ -113,16 +121,27 @@ export default class BarChart {
         this.xScale = xScale;
         this.yScale = yScale;
 
-        this.update(vals, dashedVals, xStart, xEnd, yLabel, xLabel, false);
+        this.update(vals, xStart, xEnd, stacked, yLabel, xLabel);
     }
 
 
-    // per quando switchi visualizzazione
-    updateYValues(vals, yLabel) {
-        this.update(vals, this.xStart, this.xEnd, yLabel, "Anno", false);
+    setStacked(stacked) {
+        this.stacked = stacked;
+        this.update(this.data, this.xStart, this.xEnd, this.stacked, this.yLabel, this.xLabel);
     }
-    
-    update(vals, xStart, xEnd, yLabel, xLabel="Anno") {
+
+
+    update(vals, xStart, xEnd, stacked, yLabel, xLabel="Anno") {
+        this.stacked = stacked;
+        if (stacked) {
+            this.updateStacked(vals, xStart, xEnd, yLabel, xLabel);
+        }
+        else {
+            this.updateSimple(vals, xStart, xEnd, yLabel, xLabel);
+        }
+    }
+
+    updateSimple(vals, xStart, xEnd, yLabel, xLabel="Anno") {
 
         this.data = vals;
         this.xStart = xStart;
@@ -136,28 +155,32 @@ export default class BarChart {
         if (data.length < 1) return;
 
         //scales
-        const xScale = d3.scaleLinear().range([this.margin.left, this.width - this.margin.right]);
-        const yScale = d3.scaleLinear().range([this.height - this.margin.top, this.margin.bottom]);
+        const anni = data.map(d => parseInt(d.anno));
+        const xScale = d3.scaleBand()
+            .domain(anni)
+            .range([this.margin.left, this.width - this.margin.right])
+            .padding(0.1);
+        const yScale = d3.scaleLinear()
+            .domain([0, 1.1*maxCount])
+            .range([this.height - this.margin.top, this.margin.bottom]);
 
         // axes
         const xAxis = d3.axisBottom(xScale)
-            .ticks(data[0].data.length)
+            .ticks(data.length)
             .tickFormat(function (d) {
                 return d;
             });
         const yAxis = d3.axisLeft(yScale)
             .ticks(10)
             .tickFormat(function (d) {
-                return d;
+                return d.toLocaleString();
             });
 
 
         // Update the X axis:
-        xScale.domain([xStart, xEnd]);
         this.svg.select(`#x-axis${this.index}`).call(xAxis);
 
         // Update the Y axis
-        yScale.domain([0, 1.1*maxCount]);
         this.svg.select(`#y-axis${this.index}`).call(yAxis);
         
         // Grid
@@ -199,97 +222,275 @@ export default class BarChart {
 
 
         // rimuovi linee precedenti
-        this.svg.selectAll(".lineTest").remove();
+        this.svg.selectAll(".bars").remove();
 
-        // rimuovi i cerchi precedenti
-        this.svg.selectAll(".myCircles").remove();
-
-
-        //line generator
-        const myLine = d3.line()
-            .x((d, i) => xScale(d.anno))
-            .y((d) => yScale(d.conta));
-        
 
         this.xScale = xScale;
         this.yScale = yScale;
-        
-        // disegna nuove linee
-        for (let i = 0; i < data.length; i++) {
-            this.drawLine(data[i].ateneo, i, data[i].data, myLine, data[i].color);
-        }
-    }
 
-
-
-    drawLine(ateneo, index, data, lineGenerator, color="steelblue") {
-
-        //console.log("drawing line for ateneo " + ateneo);
-
-        // Create a update selection: bind to the new data
-        var u = this.svg.selectAll(`.lineTest-${dashedText}${index}`).data([data], function(d){ return d.anno });
-        var group = this.svg.append("g");  
 
         // me lo devo salvare qua perche' nelle funzioni anonime perdo il riferimento a "this" (con bind non funziona)
         const self = this;
 
+        var color = vals.color;     // colore diverso per ogni ateneo - ma l'effetto e' brutto
+        color = "steelblue";
 
-        u.enter()
-            .append("path")
-            .attr("class",`lineTest lineTest-${index}`)
-            .merge(u)
-            .attr("d", lineGenerator)
-            .attr("fill", "none")
-            .attr("stroke", color)
-            .attr("stroke-width", 2.5)
-            .on("mouseout",  this.closeTooltip.bind(this))
-            .on('mouseover', function(event, d) { self.openTooltipNoData(self, ateneo, color, event);});
+        // per qualche motivo xScale mi restituisce undefined per il primo valore del dominio - non capisco come risolverlo ma questa funzione fixa il problema
+        const getXPos = function(val) {
+            var pos = xScale(val);
+            if (pos) {
+                return pos;
+            }
+            else {
+                return xScale(xScale.domain()[0]);
+            }
+        }
 
-                
-        group
-            .attr("class","myCircles")
-            .selectAll(`.myCircles-${index}`)
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("class",`myCircles-${index}`)
+        // Add a rect for each bar.
+        this.svg.append("g")
+            .attr("class","bars")
             .attr("fill", color)
-            .style("stroke","transparent")
-            .style("stroke-width","10px")
-            .attr("cx", function(d) { return self.xScale(d.anno) })
-            .attr("cy", function(d) { return self.yScale(d.conta) })
-            .attr("r", 3)
-            .on("mouseout", this.closeTooltip.bind(this))
-            .on('mouseover', function(event, d) { self.openTooltip(self, ateneo, color, event, d);})
+            .selectAll("g")
+            .data(data)
+            .join("rect")
+            //.attr("x", (d) => xScale(d.anno))
+            .attr("x", (d) => getXPos(d.anno))
+            .attr("y", (d) => yScale(d.somma))
+            .attr("height", (d) => yScale(0) - yScale(d.somma))
+            .attr("width", xScale.bandwidth())
+            .on("mouseout",  this.closeTooltip.bind(this))
+            .on('mouseover', function(event, d) { self.openTooltipSimple(self, event, d)});;
     }
 
     
+    updateStacked(vals, xStart, xEnd, yLabel, xLabel="Anno") {
 
+        this.data = vals;
+        this.xStart = xStart;
+        this.xEnd = xEnd;
+        this.yLabel = yLabel;
+        this.xLabel = xLabel;
+
+        const maxCount = vals.max;
+        const data = vals.data;
+
+        if (data.length < 1) return;
+
+        //scales
+        const anni = data.map(d => parseInt(d.anno));
+        const xScale = d3.scaleBand()
+            .domain(anni)
+            .range([this.margin.left, this.width - this.margin.right])
+            .padding(0.1);
+        const yScale = d3.scaleLinear()
+            .domain([0, 1.1*maxCount])
+            .range([this.height - this.margin.top, this.margin.bottom]);
+
+        // axes
+        const xAxis = d3.axisBottom(xScale)
+            .ticks(data.length)
+            .tickFormat(function (d) {
+                return d;
+            });
+        const yAxis = d3.axisLeft(yScale)
+            .ticks(10)
+            .tickFormat(function (d) {
+                return d.toLocaleString();
+            });
+
+
+        // Update the X axis:
+        this.svg.select(`#x-axis${this.index}`).call(xAxis);
+
+        // Update the Y axis
+        this.svg.select(`#y-axis${this.index}`).call(yAxis);
+        
+        // Grid
+        this.svg.select(`#y-grid${this.index}`).remove();
+        const yGrid = d3.axisLeft()
+            .scale(yScale)
+            .tickFormat('')
+            .ticks(10)
+            .tickSizeInner(-this.width + this.margin.left + this.margin.right);
+        this.svg.append('g')
+            .attr('id', `y-grid${this.index}`)
+            .classed("y-grid", true)
+            .attr('transform', `translate(${this.margin.left}, 0)`)
+            .call(yGrid).call(g => g.select(".domain").remove());
+
+        
+        // rimuovi label
+        this.svg.select(`#x-axis-label${this.index}`).remove();
+        this.svg.select(`#y-axis-label${this.index}`).remove();
+
+
+        // Add X axis label:
+        this.svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("id", `x-axis-label${this.index}`)
+            .classed("axis-label x-axis-label", true)
+            .attr("x", this.width + this.margin.left - 20)
+            .attr("y", this.height + this.margin.top + 20)
+            .text(xLabel);
+
+        // Y axis label:
+        this.svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("id", `y-axis-label${this.index}`)
+            .classed("axis-label y-axis-label", true)
+            .attr("x", this.margin.left + 25)
+            .attr("y", this.margin.top + 5)
+            .text(yLabel)
+
+
+        // rimuovi linee precedenti
+        this.svg.selectAll(".bars").remove();
+
+
+
+        // prendi tutti i possibili nomi di grant e passali come domini
+        const colorDomain = [];
+        const colorRange = [];
+        const dataNewFormat = [];
+
+        for (const grantsPerYear of data) {
+
+            const dict = {};
+            dict["anno"] = grantsPerYear.anno;
     
-    openTooltip(self, ateneo, color, event, d) {
-        //console.log(d); 
+            const yearData = grantsPerYear.data;
+
+            for (const grant of yearData) {
+                if (!colorDomain.includes(grant.nome)) {
+                    colorDomain.push(grant.nome);
+                    colorRange.push(grant.color);
+                }
+                dict[grant.nome] = grant.valore;
+            }
+
+            dataNewFormat.push(dict);
+        }
+
+        const color = d3.scaleOrdinal()
+            .domain(colorDomain)
+            .range(colorRange)
+            .unknown("#ccc");
+
+        
+        const stack = d3.stack()
+            .keys(colorDomain)
+            //.order(d3.stackOrderDescending)
+            .offset(d3.stackOffsetNone);
+
+        const series = stack(dataNewFormat);
+        //console.log(series);
+
+        this.xScale = xScale;
+        this.yScale = yScale;
+
+
+        // me lo devo salvare qua perche' nelle funzioni anonime perdo il riferimento a "this" (con bind non funziona)
+        const self = this;
+
+        const onlyGetValidField = function(d) {
+            for (const field of d) {
+                //console.log(field);
+                if (field && !isNaN(field[1])) {
+                    return [field];
+                }
+            }
+        }
+
+        const getXPos = function(val) {
+            var pos = xScale(val);
+            if (pos) {
+                return pos;
+            }
+            else {
+                return xScale(xScale.domain()[0]);
+            }
+        }
+
+
+         // Show the bars
+        this.svg.append("g")
+            .attr("class","bars")
+            .selectAll("g")
+            // Enter in the stack data = loop key per key = group per group
+            .data(series)
+            .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            // enter a second time = loop subgroup per subgroup to add all rectangles
+            //.data(function(d) { console.log(d); return d; })
+            .data(function(d) { return onlyGetValidField(d); })
+            .enter()
+            .append("rect")
+                .attr("class","bars")
+                .attr("x", function(d) { return getXPos(d.data.anno); })
+                .attr("y", function(d) { return yScale(d[1]); })
+                .attr("height", function(d) { return yScale(d[0]) - yScale(d[1]); })
+                .attr("width", xScale.bandwidth())
+                .attr("stroke", "grey")
+            .on("mouseout",  this.closeTooltip.bind(this))
+            .on('mouseover', function(event, d) { self.openTooltipStacked(self, event, d.data)});
+
+    }
+
+
+    openTooltipSimple(self, event, d) {
+        //console.log(d);
+
         self.tooltip
             .style('left', (event.pageX - 38) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
-        d3.select(`#toolTipDiv-title${self.index}`).html(ateneo);
-        d3.select(`#toolTipDiv-line${self.index}`).style("background-color", color);
-        d3.select(`#toolTipDiv-content${self.index}`).html('<div>Anno: ' + d.anno + '</div><div>Tot: ' + d.conta + '</div>');
+        d3.select(`#toolTipDiv-title${self.index}`).html(d.anno);
+
+        d3.select(`#toolTipDiv-content${self.index}`).html(`<div>Grants: ${d.data.length}</div><div>Tot: ${d.somma.toLocaleString()} €</div>`);
 
         self.tooltip.transition()        
             .duration(200)      
             .style('opacity', 1);     
     }
-        
-    openTooltipNoData(self, ateneo, color, event) {
-        //console.log(d); 
+
+    
+    openTooltipStacked(self, event, d) {
+        //console.log(d);
+
+        const keys = Object.keys(d);
+        const nomi = [];
+        for (const key of keys) {
+            if (key != "anno") {
+                nomi.push(key);
+            }
+        }
+
         self.tooltip
             .style('left', (event.pageX - 38) + 'px')     
             .style('top', (event.pageY - 28) + 'px');
 
-        d3.select(`#toolTipDiv-title${self.index}`).html(ateneo);
-        d3.select(`#toolTipDiv-line${self.index}`).style("background-color", color);
-        d3.select(`#toolTipDiv-content${self.index}`).html('');
+        d3.select(`#toolTipDiv-title${self.index}`).html(d.anno);
+
+        var content = "";
+
+        for (let i = nomi.length - 1; i >= 0; i--) {
+            const nome = nomi[i];
+
+            const quadrati_style = `
+                background-color:${ColorUtilities.stringToColor(nome)};
+                width:15px;
+                height:15px;
+                border-radius:4px;
+                margin-right:3px;
+            `;
+
+            content += `<div style="display:flex; align-items:center;">`;
+            content += `<div style="${quadrati_style}"></div>`;
+            content += `<div>${nome}: ${d[nome].toLocaleString()} €</div>`;
+            content += "</div>";
+        }
+        d3.select(`#toolTipDiv-content${self.index}`).html(content);
 
         self.tooltip.transition()        
             .duration(200)      

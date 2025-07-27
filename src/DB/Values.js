@@ -21,6 +21,12 @@ export default class Values {
     // nomi colonne FILE BANDI
     static BANDI_FIELD_POSTI = "Numero di Posti";
 
+    // nomi colonne FILE GRANTS
+    static GRANTS_FIELD_ACRONIMO = "Acronym";
+    static GRANTS_FIELD_VALORE = "EU contribution";
+    static GRANTS_FIELD_NUMERO_ORGANIZZAZIONI = "Numero di organizzazioni";
+
+    
     // source:
     // http://www.inaf.it/it/documenti/adr-aree-cun-e-ssd
     static VALUES_SSD_PER_AREA = {
